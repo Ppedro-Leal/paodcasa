@@ -4,9 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // Defina a função handler para a rota
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { clienteId: string; produtoId: string } }
+  { params }: { params: { produtoId: string } }
 ) {
-  const { clienteId, produtoId } = params;
+  const produtoId  = params.produtoId[1];
+  const clienteId = params.produtoId[0]
 
   if (!clienteId || !produtoId) {
     return NextResponse.json({ error: "clienteId ou produtoId não fornecido" });
