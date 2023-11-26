@@ -20,7 +20,7 @@ export default function Detail() {
   const [count, setCount] = useState(1);
 
   const [totalPrice, setTotalPrice] = useState(
-    produto.preco ? produto.preco * count : 1
+    produto.preco ? produto.preco * count : 0
   );
 
   const [decodedToken, setDecodedToken] = useState(null);
@@ -56,7 +56,7 @@ export default function Detail() {
   );
 
   function getProduto() {
-    fetch("http://192.168.0.107:3000/api/produto")
+    fetch("http://192.168.1.8:3000/api/produto")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Erro na solicitação GET");
@@ -78,7 +78,7 @@ export default function Detail() {
   const AdicionarCarrinho = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.107:3000/api/carrinho/cliente/${clienteId}`,
+        `http://192.168.1.8:3000/api/carrinho/cliente/${clienteId}`,
         {
           method: "POST",
           headers: {
@@ -115,7 +115,7 @@ export default function Detail() {
 
       <View style={{ position: "relative" }}>
         <Image
-          source={{ uri: `http://192.168.0.107:3000${produto.imagem[0].url}` }}
+          source={{ uri: `http://192.168.1.8:3000${produto.imagem[0].url}` }}
           style={styles.imgProduto}
         />
         <TouchableOpacity
@@ -179,7 +179,7 @@ export default function Detail() {
                 >
                   <Image
                     source={{
-                      uri: `http://192.168.0.107:3000${produto.imagem[0].url}`,
+                      uri: `http://192.168.1.8:3000${produto.imagem[0].url}`,
                     }}
                     style={styles.imgProdutos}
                   />

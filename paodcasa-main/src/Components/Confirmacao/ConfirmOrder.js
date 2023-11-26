@@ -20,7 +20,7 @@ export default function ConfirmOrder({ route }) {
   const getCarrinho = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.107:3000/api/endereco/${carrinhoProdutos[0].carrinho_id}`
+        `http://192.168.1.8:3000/api/endereco/${carrinhoProdutos[0].carrinho_id}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -36,7 +36,7 @@ export default function ConfirmOrder({ route }) {
   const getCliente = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.107:3000/api/cliente/${carrinhoProdutos[0].carrinho_id}`
+        `http://192.168.1.8:3000/api/cliente/${carrinhoProdutos[0].carrinho_id}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -98,7 +98,7 @@ export default function ConfirmOrder({ route }) {
                <View style={{ alignItems: 'center' }}>
               <Image
                 source={{
-                  uri: `http://192.168.0.107:3000${produto.produto.url}`,
+                  uri: `http://192.168.1.8:3000${produto.produto.url}`,
                 }}
                 style={{
                   width: 77,

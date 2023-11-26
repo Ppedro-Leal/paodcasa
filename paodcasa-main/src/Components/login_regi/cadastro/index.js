@@ -24,7 +24,7 @@ export default function Cadastro() {
       setPasso(2);
     } else if (passo === 2 && senha.trim() !== "") {
       try {
-        const response = await fetch('http://192.168.0.107:3000/api/cliente/criar', {
+        const response = await fetch('http://192.168.1.8:3000/api/cliente/criar', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
