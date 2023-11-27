@@ -36,7 +36,6 @@ export default function Perfil() {
 
     if (userToken) {
       const decoded = jwtDecode(userToken);
-      console.log("Dados decodificados do token:", decoded);
 
       setDecodedToken(decoded);
     } else {

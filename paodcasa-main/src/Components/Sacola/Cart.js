@@ -1,5 +1,5 @@
 import "core-js/stable/atob";
-import  { jwtDecode }  from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -13,28 +13,28 @@ export default function Cart() {
   const navigation = useNavigation();
   const [carrinhoProdutos, setCarrinhoProdutos] = useState();
   const [decodedToken, setDecodedToken] = useState(null);
-  const [clienteId, setClienteId] = useState()
+  const [clienteId, setClienteId] = useState();
+  const [total, setTotal] = useState(0);
 
   async function get() {
     const userToken = await AsyncStorage.getItem("userToken");
-    
+
     if (userToken) {
       const decoded = jwtDecode(userToken);
-      
-      
-      setClienteId(decoded.clienteId)
+
+      setClienteId(decoded.clienteId);
       setDecodedToken(decoded);
     } else {
       console.log("Token não encontrado no AsyncStorage");
     }
-
   }
-  
-  
+
   const getCarrinho = async () => {
-    console.log(clienteId)
+    console.log(clienteId);
     try {
-      const response = await fetch(`http://192.168.1.8:3000/api/carrinho/cliente/${clienteId}`);
+      const response = await fetch(
+        `http://192.168.0.107:3000/api/carrinho/cliente/${clienteId}`
+      );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
       }
@@ -58,37 +58,56 @@ export default function Cart() {
         console.error("Erro ao buscar dados:", error);
       }
     };
-  
+
     fetchData();
-  
-    return () => {
-    };
+
+    return () => {};
   }, [clienteId]);
 
+  const atualizaQuantidade = (index, newCount) => {
+    const novoCarrinhoProdutos = [...carrinhoProdutos];
+    novoCarrinhoProdutos[index].quantidade = newCount;
+    setCarrinhoProdutos(novoCarrinhoProdutos);
+  };
 
+  const atualizaPrecoTotal = (index, newTotalPrice) => {
+    const novoCarrinhoProdutos = [...carrinhoProdutos];
+    novoCarrinhoProdutos[index].preco = newTotalPrice;
+    setCarrinhoProdutos(novoCarrinhoProdutos);
+  };
+
+  const calcularTotal = () => {
+    if (carrinhoProdutos && carrinhoProdutos.length > 0) {
+      const totalCalculado = carrinhoProdutos.reduce((acumulador, produto) => {
+        const precoTotal = parseFloat(produto.preco);
+        return isNaN(precoTotal) ? acumulador : acumulador + precoTotal;
+      }, 0);
   
-
- 
-
-
+      return totalCalculado.toFixed(2); // Para formatar o total com duas casas decimais
+    }
+  
+    return "0.00";
+  };
+  
   const deletaProd = async (index) => {
     try {
       const produtoId = carrinhoProdutos[index].produto.id;
 
-      const response = await fetch(`http://192.168.1.8:3000/api/carrinho/${clienteId}/${produtoId}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `http://192.168.0.107:3000/api/carrinho/${clienteId}/${produtoId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Erro ao remover o produto');
+        throw new Error("Erro ao remover o produto");
       }
 
-      // Crio uma copia 
-      const novosProdutos = [...carrinhoProdutos];
-      // Removo produto no índice passado
-      novosProdutos.splice(index, 1);
-      // atualizo nova lista
-      setCarrinhoProdutos(novosProdutos);
+      const novoCarrinhoProdutos = carrinhoProdutos.filter(
+        (_, i) => i !== index
+      );
+      setCarrinhoProdutos(novoCarrinhoProdutos);
     } catch (error) {
       console.error(error);
     }
@@ -97,7 +116,11 @@ export default function Cart() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.namePageSpace}>
-        <TouchableOpacity onPress={() => navigation.navigate('BottomTabNavigator', { screen: 'ínicio' })}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("BottomTabNavigator", { screen: "ínicio" })
+          }
+        >
           <Image
             source={require("../../../assets/arrow-left2.png")}
             style={{ width: 38, height: 26, marginLeft: 17, marginTop: 8 }}
@@ -107,14 +130,15 @@ export default function Cart() {
         <Text style={styles.pageName}>Fazer Pedido</Text>
       </View>
       <ScrollView
-      style={{marginBottom:40}}
-        showsVerticalScrollIndicator={false}>
+        style={{ marginBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
         {carrinhoProdutos?.map((produto, index) => (
           <View style={styles.produtoSpace} key={index}>
-            <View style={{ flexDirection: "row" }} >
+            <View style={{ flexDirection: "row" }}>
               <Image
                 source={{
-                  uri: `http://192.168.1.8:3000${produto.produto.url} `,
+                  uri: `http://192.168.0.107:3000${produto.produto.url} `,
                 }}
                 style={{
                   width: 80,
@@ -127,11 +151,11 @@ export default function Cart() {
               <View style={{ marginLeft: 14 }}>
                 <Text style={styles.txtProduto}>{produto.produto.nome}</Text>
                 <Text style={[styles.txtProduto, { paddingTop: 5 }]}>
-                  R${produto.produto.preco}
+                  R${produto.preco}
                 </Text>
               </View>
             </View>
-            <View style={{ alignItems: 'center' }}>
+            <View style={{ alignItems: "center" }}>
               <TouchableOpacity onPress={() => deletaProd(index)}>
                 <Image
                   source={require("../../../assets/trash.png")}
@@ -139,23 +163,25 @@ export default function Cart() {
                 />
               </TouchableOpacity>
               <Counter
-                style={{ marginTop: 8 }}
-                count={count}
-                setCount={setCount}
+                count={produto.quantidade}
+                setCount={(newCount) => atualizaQuantidade(index, newCount)}
+                setTotalPrice={(newTotalPrice) =>
+                  atualizaPrecoTotal(index, newTotalPrice)
+                }
+                produto={produto.produto}
               />
             </View>
-
           </View>
         ))}
       </ScrollView>
-      
+
       <TouchableOpacity
-          style={styles.botaoCarrinho}
-          onPress={() => navigation.navigate('Busca')}
-        >
-          <Text style={styles.textoBotaoCarrinho}>Adicionar Itens</Text>
-        </TouchableOpacity>
-     
+        style={styles.botaoCarrinho}
+        onPress={() => navigation.navigate("Busca")}
+      >
+        <Text style={styles.textoBotaoCarrinho}>Adicionar Itens</Text>
+      </TouchableOpacity>
+
       <View
         style={{
           backgroundColor: "#b48c5c73",
@@ -163,7 +189,7 @@ export default function Cart() {
           borderTopRightRadius: 14,
         }}
       >
-        <Text style={{color:'#b48c5c73'}}>.</Text>
+        <Text style={{ color: "#b48c5c73" }}>.</Text>
         <View
           style={{
             backgroundColor: "#DCCCAC",
@@ -195,12 +221,14 @@ export default function Cart() {
             }}
           >
             <Text style={styles.txtEnd}>Total</Text>
-            <Text style={styles.txtEnd}>0,00</Text>
+            <Text style={styles.txtEnd}>R${calcularTotal()}</Text>
           </View>
           <View style={{ height: 70, alignItems: "center" }}>
             <TouchableOpacity
               style={styles.btnStyle}
-              onPress={() => navigation.navigate('Confirmação', { carrinhoProdutos })}
+              onPress={() =>
+                navigation.navigate("Confirmação", { carrinhoProdutos })
+              }
             >
               <Text
                 style={{ color: "white", fontSize: 16, fontWeight: "bold" }}
@@ -260,7 +288,7 @@ const styles = StyleSheet.create({
     color: "#5A4429",
     fontWeight: "bold",
     letterSpacing: 0.45,
-    fontSize:14
+    fontSize: 14,
   },
   btnMaisItens: {
     backgroundColor: "#5A4429",
@@ -288,16 +316,16 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   botaoCarrinho: {
-    backgroundColor: '#5E361D',
+    backgroundColor: "#5E361D",
     padding: 10,
     borderRadius: 8,
-    position: 'absolute',
+    position: "absolute",
     bottom: 170,
     right: 10,
   },
   textoBotaoCarrinho: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

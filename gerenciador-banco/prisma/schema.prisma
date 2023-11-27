@@ -58,6 +58,7 @@ model Carrinho {
 model ProdutoCarrinho {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   quantidade  Int
+  preco       String
   produto     Produto  @relation(fields: [produto_id], references: [id])
   produto_id  String   @db.ObjectId
   carrinho    Carrinho @relation(fields: [carrinho_id], references: [id])
@@ -67,9 +68,10 @@ model ProdutoCarrinho {
 model Pedido {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   dataPedido DateTime
-  total      Float
+  total      String
   status     String
   confirmado Boolean  @default(false)
+  finalizado Boolean  @default(false)
 
   itens ProdutoPedido[]
 

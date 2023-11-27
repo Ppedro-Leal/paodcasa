@@ -1,28 +1,66 @@
-import { useNavigation } from "@react-navigation/native";
+import "core-js/stable/atob";
+import { jwtDecode } from "jwt-decode";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  StatusBar,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-let clienteId = "655f752cea59669b9499eaa4";
+const { width, height } = Dimensions.get("window");
 
 export default function Historico() {
   const navigation = useNavigation();
   const [pedidos, setPedidos] = useState([]);
+  const [decodedToken, setDecodedToken] = useState(null);
+  const [clienteId, setClienteId] = useState();
 
-  useEffect(() => {
-    fetch(`http://192.168.1.8:3000/api/pedido/${clienteId}`)
+  async function get() {
+    const userToken = await AsyncStorage.getItem("userToken");
+
+    if (userToken) {
+      const decoded = jwtDecode(userToken);
+
+      setClienteId(decoded.clienteId);
+      setDecodedToken(decoded);
+    } else {
+      console.log("Token não encontrado no AsyncStorage");
+    }
+  }
+
+  async function getPedidos() {
+    fetch(`http://192.168.0.107:3000/api/pedido/${clienteId}`)
       .then((response) => response.json())
       .then((data) => setPedidos(data))
       .catch((error) => console.error("Erro na busca de pedidos:", error));
-  }, [clienteId]);
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchData = async () => {
+        try {
+          console.log("Componente pedido montado");
+          await get();
+          if (clienteId !== undefined) {
+            await getPedidos();
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados:", error);
+        }
+      };
+
+      fetchData();
+
+      return () => {};
+    }, [clienteId])
+  );
 
   const pedidosAtuais = pedidos.slice(0, 2); // Exibe no máximo dois pedidos
   const historicoPedidos = pedidos.slice(2);
@@ -34,105 +72,58 @@ export default function Historico() {
           <Text style={styles.cabecaTexto}>PEDIDOS</Text>
         </View>
 
-        <ScrollView>
-          <View>
+        <ScrollView style={styles.scroll}>
+          <View style={styles.tudo}>
             <View>
               <Text style={styles.nomepedidos}> Seus Pedidos </Text>
             </View>
 
-            <View style={{ marginHorizontal: 10 }}>
+            <View style={{ marginHorizontal: width * 0.05 }}>
               {pedidosAtuais.map((pedido) => (
-                <View key={pedido.id} style={styles.cardContainer}>
-                  <TouchableOpacity style={styles.caixadepedidos}>
+                <TouchableOpacity
+                  key={pedido.id}
+                  style={styles.caixadepedidos}
+                  onPress={() =>
+                    navigation.navigate("DetalhesPedido", { pedido })
+                  }
+                >
+                  <View>
                     <View>
-                      <View>
-                        <Text style={styles.btn1}>
-                          Código: {pedido.id.substring(0, 6)}
+                      <Text style={styles.cdgpedido}>
+                        Código: {pedido.id.substring(0, 6)}
+                      </Text>
+                    </View>
+
+                    {pedido.itens.map((item) => (
+                      <View key={item.produto_id}>
+                        <Text style={styles.itens}>
+                          Item: {item.quantidade}x {item.produto.nome}
                         </Text>
                       </View>
+                    ))}
 
-                      {pedido.itens.map((item) => (
-                        <View key={item.produto_id}>
-                          <Text style={styles.btn2}>
-                            Item: {item.quantidade}x {item.produto.nome}
-                          </Text>
-                        </View>
-                      ))}
-
-                      <View style={styles.setah}>
-                        <View>
-                          <Icon
-                            name="chevron-down-sharp"
-                            size={20}
-                            color="#000"
-                          />
-                        </View>
-                        <View>
-                          <Text style={styles.btnh}>ACOMPANHAR</Text>
-                        </View>
-                      </View>
-
-
+                    <View style={styles.setah}>
                       <View>
-                        <Text style={styles.btn4}>Status: {pedido.status}</Text>
+                        <Icon
+                          name="chevron-down-sharp"
+                          size={width * 0.04}
+                          color="#000"
+                        />
+                      </View>
+                      <View>
+                        <Text style={styles.btn}>ACOMPANHAR</Text>
+                      </View>
+                    </View>
+
+                    <View style={{ flexDirection: "column" }}>
+                      <View>
+                        <Text style={styles.statspedidos}>
+                          Status: {pedido.status}
+                        </Text>
                       </View>
 
                       <View>
                         <Text style={styles.preco}>R$ {pedido.total}</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          <View>
-            <View>
-              <Text style={styles.nomepedidos}> HISTÓRICO </Text>
-            </View>
-
-            <View style={{ marginHorizontal: 10 }}>
-              {historicoPedidos.map((historicoPedido) => (
-                <TouchableOpacity
-                  key={historicoPedido.id}
-                  style={styles.cardContainer}
-                >
-                  <View style={styles.caixadehistoico}>
-                    <View>
-                      <View>
-                        <Text style={styles.btn1}>
-                          Cód. Pedido: {historicoPedido.id.substring(0, 6)}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.btn2}>
-                          Items: {historicoPedido.itens.length} itens
-                        </Text>
-                      </View>
-                      <View>
-                        <View style={styles.setah}>
-                          <View>
-                            <Icon
-                              name="chevron-down-sharp"
-                              size={20}
-                              color="#000"
-                            />
-                          </View>
-                          <View>
-                            <Text style={styles.btnh}>ACOMPANHAR</Text>
-                          </View>
-                        </View>
-                      </View>
-
-                      <View>
-                        <Text style={styles.btn4}>FINALIZADO</Text>
-                      </View>
-
-                      <View>
-                        <Text style={styles.preco}>
-                          R$ {historicoPedido.total}
-                        </Text>
                       </View>
                     </View>
                   </View>
@@ -140,18 +131,71 @@ export default function Historico() {
               ))}
             </View>
           </View>
-        </ScrollView>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Carrinho")}
-          style={styles.buttonContainer}
-        >
-          <View style={styles.button}>
+          <View style={styles.tudo}>
             <View>
-              <Icon name="basket" size={40} color="#fff" />
+              <Text style={styles.nomehistorico}> HISTÓRICO </Text>
+            </View>
+
+            <View style={{ marginHorizontal: width * 0.05 }}>
+              {historicoPedidos.map((historicoPedido) => (
+                <TouchableOpacity
+                  key={historicoPedido.id}
+                  style={styles.caixadepedidos}
+                  onPress={() =>
+                    navigation.navigate("DetalhesPedido", { historicoPedido })
+                  }
+                >
+                  <View>
+                    <View>
+                      <Text style={styles.cdgpedido}>
+                        Cód. Pedido: {historicoPedido.id.substring(0, 6)}
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={styles.itens}>
+                        Items: {historicoPedido.itens.length} itens
+                      </Text>
+                    </View>
+                    <View style={styles.setah}>
+                      <View>
+                        <Icon
+                          name="chevron-down-sharp"
+                          size={width * 0.04}
+                          color="#000"
+                        />
+                      </View>
+                      <View>
+                        <Text style={styles.btnhistorico}>ACOMPANHAR</Text>
+                      </View>
+                    </View>
+
+                    <View>
+                      <Text style={styles.statshistorico}>FINALIZADO</Text>
+                    </View>
+
+                    <View>
+                      <Text style={styles.precohist}>
+                        R$ {historicoPedido.total}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
-        </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Carrinho")}
+            style={styles.buttonContainer}
+          >
+            <View style={styles.button}>
+              <View>
+                <Icon name="basket" size={width * 0.1} color="#fff" />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );
@@ -161,6 +205,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#CCBCB4",
+    marginBottom: 1,
   },
 
   cabeca: {
@@ -169,104 +214,113 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    height: 90,
+    height: height * 0.1,
   },
   cabecaTexto: {
     color: "white",
-    fontSize: 20,
+    fontSize: width * 0.06,
     fontWeight: "bold",
-    top: 10,
+    top: height * 0.01,
     textShadowColor: "rgba(0, 0, 0, 0.25)",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
-  },
-  nomepedidos: {
-    marginLeft: 40,
-    color: "#5A4429",
-    fontSize: 22,
-    fontStyle: "normal",
-    fontWeight: "700",
-    marginBottom: 20,
+    textShadowOffset: { width: width * 0.01, height: height * 0.003 },
+    textShadowRadius: width * 0.02,
   },
 
-  cardContainer: {
-    marginBottom: 16,
-    marginHorizontal: 3,
+  scroll: {
+    width: "100%",
+  },
+
+  tudo: {
+    display: "flex",
+    flexDirection: "column",
+  },
+
+  nomepedidos: {
+    color: "#5A4429",
+    fontSize: width * 0.07,
+    fontWeight: "bold",
+    marginLeft: width * 0.09,
+  },
+  nomehistorico: {
+    color: "#5A4429",
+    fontSize: width * 0.06,
+    fontWeight: "bold",
+    marginLeft: width * 0.09,
+    marginTop: width * 0.29,
   },
 
   caixadepedidos: {
-    width: "98%",
+    marginBottom: width * 0.01,
+    width: "100%",
     height: 150,
     backgroundColor: "#DCCCAC",
     borderRadius: 20,
     alignItems: "center",
     elevation: 8,
+    marginVertical: 10,
   },
 
-  btn1: {
-    marginRight: 100,
+  setah: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+
+  cdgpedido: {
     color: "#5A4429",
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    top: 15,
+    top: height * 0.02,
   },
-  btn2: {
-    marginRight: 110,
+  itens: {
     color: "#5A4429",
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    top: 30,
+    top: height * 0.03,
   },
-  btn3: {
-    marginLeft: 25,
+
+  btn: {
+    top: width * 0.14,
     color: "#5A4429",
     fontSize: 13,
     fontStyle: "normal",
     fontWeight: "700",
-    top: 80,
   },
-  btnh: {
-    marginLeft: 10,
-    color: "#5A4429",
-    fontSize: 14,
-    fontStyle: "normal",
-    fontWeight: "700",
-  },
-  btn4: {
-    marginLeft: 200,
+
+  statspedidos: {
+    marginLeft: height * 0.25,
     color: "#5A4429",
     fontSize: 17,
     fontStyle: "normal",
     fontWeight: "700",
-    top: -80,
+    top: height * -0.1,
   },
   preco: {
-    marginLeft: 200,
+    marginLeft: width * 0.6,
     color: "#5A4429",
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    top: -30,
+    top: height * -0.06,
   },
 
   caixadehistoico: {
-    width: "98%",
+    width: 350,
     height: 150,
     backgroundColor: "#DCCCAC",
     borderRadius: 20,
     alignItems: "center",
     elevation: 8,
+    marginLeft: 15,
   },
 
   buttonContainer: {
     alignItems: "center",
-    justifyContent: "center",
   },
   button: {
-    width: 55,
-    height: 55,
+    width: 75,
+    height: 75,
     borderRadius: 40,
     backgroundColor: "#67452C",
     alignItems: "center",
@@ -275,13 +329,30 @@ const styles = StyleSheet.create({
     marginLeft: 280,
     top: -10,
   },
-  setah: {
-    alignItems: "center",
-    flexDirection: "row",
-    top: 60,
+
+  statshistorico: {
+    marginLeft: height * 0.25,
+    color: "#5A4429",
+    fontSize: 17,
+    fontStyle: "normal",
+    fontWeight: "700",
+    top: height * -0.05,
   },
 
-  setap: {
-    top: 60,
+  btnhistorico: {
+    top: width * 0.2,
+    color: "#5A4429",
+    fontSize: 13,
+    fontStyle: "normal",
+    fontWeight: "700",
+  },
+
+  precohist: {
+    marginLeft: width * 0.6,
+    color: "#5A4429",
+    fontSize: 15,
+    fontStyle: "normal",
+    fontWeight: "700",
+    top: height * 0.02,
   },
 });

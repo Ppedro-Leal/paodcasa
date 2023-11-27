@@ -10,7 +10,7 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const {produtoId, quantidade} = body
+    const {produtoId, quantidade, preco} = body
 
     if (!body) {
         return new NextResponse("Faltando informações", { status: 400 });
@@ -55,6 +55,7 @@ export async function POST(
               id: produtoId,
             },
           },
+          preco: String(preco),
           carrinho: {
             connect: {
               id: carrinhoId
@@ -75,6 +76,7 @@ export async function POST(
               id: produtoId,
             },
           },
+          preco: String(preco),
           carrinho: {
             connect: {
               id: carrinhoId

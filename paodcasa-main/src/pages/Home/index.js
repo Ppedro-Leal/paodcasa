@@ -15,7 +15,7 @@ export default function Home() {
   const navigation = useNavigation();
 
   function test() {
-    fetch("http://192.168.1.8:3000/api/produto")
+    fetch("http://192.168.0.107:3000/api/produto")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Erro na solicitação GET");
@@ -57,7 +57,7 @@ export default function Home() {
 
                     <TouchableOpacity onPress={() => navigation.navigate('ItemSelecionado', { ...produto })}
                       style={{ alignItems: 'center', paddingHorizontal: 55,  paddingVertical: 15 }}>
-                      <Image source={{ uri: `http://192.168.1.8:3000${produto.imagem[0].url}` }} style={styles.imgProdutos}
+                      <Image source={{ uri: `http://192.168.0.107:3000${produto.imagem[0].url}` }} style={styles.imgProdutos}
                       />
                       <Text style={{ color: '#5A4429', fontSize: 15, fontWeight: 'bold' }}>{produto.nome}</Text>
                       <Text style={{ color: '#5A4429', fontSize: 15, fontWeight: 'bold' }}>{produto.preco}/unid</Text>

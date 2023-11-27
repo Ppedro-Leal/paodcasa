@@ -24,8 +24,7 @@ export async function POST(request: Request) {
     const t = body.total;
 
     delete body.carrinhoId;
-
-    body.total = parseFloat(t);
+ 
 
     // Extrair produtos do corpo e remover do corpo principal
     const produtos = body.produtos;
