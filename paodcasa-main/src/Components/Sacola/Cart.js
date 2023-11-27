@@ -1,6 +1,6 @@
 import "core-js/stable/atob";
 import { jwtDecode } from "jwt-decode";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
@@ -111,6 +111,16 @@ export default function Cart() {
     } catch (error) {
       console.error(error);
     }
+  };
+
+
+  const irParaConfirmação = () => {
+    if (!carrinhoProdutos || carrinhoProdutos.length === 0) {
+      Alert.alert("Sacola vazia", "Por favor, adicione itens à sacola antes.");
+      return;
+    }
+  
+    navigation.navigate("Confirmação", { carrinhoProdutos });
   };
 
   return (
@@ -226,9 +236,7 @@ export default function Cart() {
           <View style={{ height: 70, alignItems: "center" }}>
             <TouchableOpacity
               style={styles.btnStyle}
-              onPress={() =>
-                navigation.navigate("Confirmação", { carrinhoProdutos })
-              }
+              onPress={irParaConfirmação}
             >
               <Text
                 style={{ color: "white", fontSize: 16, fontWeight: "bold" }}

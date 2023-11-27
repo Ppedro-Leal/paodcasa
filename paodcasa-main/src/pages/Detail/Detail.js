@@ -1,7 +1,7 @@
 import "core-js/stable/atob";
 import { jwtDecode } from "jwt-decode";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
@@ -76,6 +76,11 @@ export default function Detail() {
   }, []);
 
   const AdicionarCarrinho = async () => {
+
+    if(!clienteId){
+      return  Alert.alert('Entre em uma conta para adicionar itens à sacola.')
+    }
+
     try {
       const response = await fetch(
         `http://192.168.0.107:3000/api/carrinho/cliente/${clienteId}`,
@@ -288,7 +293,7 @@ export default function Detail() {
                   await AdicionarCarrinho();
                 } catch (error) {
                   console.error("Erro ao adicionar produto à sacola:", error);
-                  // Lógica adicional para lidar com o erro (ex: feedback para o usuário)
+                  Alert.alert('Entre em uma conta para adicionar itens à sacola.')
                 }
               }}
               style={{

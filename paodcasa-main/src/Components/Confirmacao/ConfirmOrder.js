@@ -10,6 +10,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
+import ConfirmarPagamento from "../modals/pagamentoModal";
+import AdicionarEnderecoModal from "../modals/enderecoModal";
 
 export default function ConfirmOrder({ route }) {
   const navigation = useNavigation();
@@ -18,8 +20,18 @@ export default function ConfirmOrder({ route }) {
   const [endereco, setEndereco] = useState();
   const [cliente, setCliente] = useState();
   const [totalTodo, setTotal] = useState();
-  const [subtotal, setSubtotal] = useState('0.00');
-  const [frete, setFrete] = useState('1.00');
+  const [subtotal, setSubtotal] = useState("0.00");
+  const [frete, setFrete] = useState("1.00");
+  const [formaPagamento, setFormaPagamento] = useState("");
+  const [isEnderecoModalVisible, setAddressModalVisible] = useState(false);
+
+  const toggleEnderecoModal = () => {
+    setAddressModalVisible(!isEnderecoModalVisible);
+  };
+
+  const handlePagamentoSelecao = (metodoPagamento) => {
+    setFormaPagamento(metodoPagamento);
+  };
 
   const getCarrinho = async () => {
     try {
@@ -56,15 +68,28 @@ export default function ConfirmOrder({ route }) {
   useEffect(() => {
     getCarrinho();
     getCliente();
-    calcularTotalPedido()
+    calcularTotalPedido();
   }, []);
 
   const fazerPedido = async () => {
+    if (!endereco || endereco.length === 0) {
+      Alert.alert("Endereço ausente", "Por favor, adicione um endereço.");
+      return;
+    }
+
+    if (!cliente?.telefone) {
+      Alert.alert(
+        "Número de telefone ausente",
+        "Por favor, adicione um número de telefone."
+      );
+      return;
+    }
+
     try {
-      const response = await fetch('http://192.168.0.107:3000/api/pedido', {
-        method: 'POST',
+      const response = await fetch("http://192.168.0.107:3000/api/pedido", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           cliente_id: cliente.id,
@@ -77,33 +102,56 @@ export default function ConfirmOrder({ route }) {
               id: endereco[0].id,
             },
           })),
-          total: totalTodo, 
-          status: 'Aguardando confirmação',
+          total: totalTodo,
+          status: "Aguardando confirmação",
           confirmado: false,
           carrinhoId: carrinhoProdutos[0].carrinho_id,
         }),
       });
-  
+
       if (!response.ok) {
-        throw new Error('Erro ao fazer pedido');
+        throw new Error("Erro ao fazer pedido");
       }
-  
+
       const data = await response.json();
-  
-      Alert.alert('Pedido realizado com sucesso!');
-      navigation.navigate('BottomTabNavigator', { screen: 'Inicio' });
+
+      Alert.alert("Pedido realizado com sucesso!");
+      navigation.navigate("BottomTabNavigator", { screen: "Inicio" });
     } catch (error) {
       console.error(error);
-      Alert.alert('Erro ao fazer pedido. Tente novamente.');
+      Alert.alert("Erro ao fazer pedido. Tente novamente.");
     }
   };
 
+  const handleAddAddress = async (novoEndereco) => {
+    try {
+      const response = await fetch("http://192.168.0.107:3000/api/endereco", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cliente_id: cliente.id,
+          ...novoEndereco,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao adicionar endereço");
+      }
+
+      setEndereco([novoEndereco]);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Falha ao criar endereço");
+    }
+  };
 
   const calcularTotalPedido = () => {
     if (!carrinhoProdutos || carrinhoProdutos.length === 0) {
-      setSubtotal('0.00');
-      setFrete('1.00');
-      setTotal('1.00');
+      setSubtotal("0.00");
+      setFrete("1.00");
+      setTotal("1.00");
       return;
     }
 
@@ -114,7 +162,7 @@ export default function ConfirmOrder({ route }) {
 
     setSubtotal(subtotalValue.toFixed(2));
 
-    const freteValue = 1.00;
+    const freteValue = 1.0;
 
     setFrete(freteValue.toFixed(2));
 
@@ -123,6 +171,18 @@ export default function ConfirmOrder({ route }) {
     setTotal(totalValue.toFixed(2));
   };
 
+  const renderNumeroTelefone = () => {
+    if (!cliente?.telefone) {
+      return (
+        <TouchableOpacity onPress={() => navigation.navigate("Conta")}>
+          <Text style={styles.upPartInf}>
+          Inexistente. Clique aqui para adicionar.
+          </Text>
+        </TouchableOpacity>
+      );
+    }
+    return <Text style={styles.upPartInf}> {cliente.telefone}</Text>;
+  };
 
   return (
     <SafeAreaView style={styles.Container}>
@@ -140,65 +200,106 @@ export default function ConfirmOrder({ route }) {
         <Text style={styles.pageName}>Confirmar Pedido</Text>
       </View>
 
-      <View style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}>
+      <View
+        style={{
+          backgroundColor: "#DCCCAC",
+          marginTop: 10,
+          height: 110,
+          elevation: 2,
+        }}
+      >
         <View style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}>
           <Text style={styles.nameCardInf}>Informações de entrega</Text>
         </View>
-        {}
         <View style={{ marginTop: 6, marginLeft: 22, flexDirection: "row" }}>
           <Text style={styles.upPartInf}>{cliente?.nome}</Text>
           <Text style={[styles.upPartInf, { marginLeft: 10 }]}>
-            Número: {cliente?.telefone}
-          </Text>
+            Número :
+          </Text> 
+          {renderNumeroTelefone()}
         </View>
-        {endereco?.map((endereco) => (
-          <View>
-            <Text style={[styles.downPartInf, {marginTop: 10}]}>{endereco.rua}</Text>
-            <Text style={styles.downPartInf}>{endereco.cidade}, {endereco.estado} </Text>
-            <Text style={[styles.downPartInf, { marginBottom: 13}]}>{endereco.cep}</Text>
+
+        {endereco && endereco.length > 0 ? (
+          <View style={{ marginLeft: 22, marginTop: 6 }}>
+            <Text style={[styles.downPartInf]}>
+              Rua: {endereco[0].rua}, {endereco[0].cidade}, {endereco[0].estado}{" "}
+            </Text>
+            <Text style={[styles.downPartInf, { marginBottom: 13 }]}>
+              CEP: {endereco[0].cep}
+            </Text>
           </View>
-        ))}
+        ) : (
+          <View style={{ marginLeft: 18, marginTop: 6, width: "90%" }}>
+            <TouchableOpacity onPress={toggleEnderecoModal}>
+              <Text style={styles.downPartInf}>
+                Ainda não possui nenhum endereço em sua conta. Clique aqui para
+                adicionar.
+              </Text>
+            </TouchableOpacity>
+            {isEnderecoModalVisible && (
+              <AdicionarEnderecoModal
+                isVisible={isEnderecoModalVisible}
+                onClose={toggleEnderecoModal}
+                AddAddress={handleAddAddress}
+              />
+            )}
+          </View>
+        )}
       </View>
+
       <View style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}>
         <View style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}>
           <Text style={styles.nameCardInf}>Itens de entrega</Text>
         </View>
+
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
           {carrinhoProdutos?.map((produto, index) => (
-            <View style={{ marginLeft: 13, alignItems: 'flex-start', marginTop: 6 }} key={index}>
-               <View style={{ alignItems: 'center' }}>
-              <Image
-                source={{
-                  uri: `http://192.168.0.107:3000${produto.produto.url}`,
-                }}
-                style={{
-                  width: 77,
-                  height: 77,
-                  borderRadius: 5,
-                  marginTop: 12
-                }}
-              />
-              <Text
-                style={{
-                  color: "#5A4429",
-                  fontSize: 14,
-                  fontWeight: "bold",
-                  marginTop: 2,
-                  textAlign: "center",
-                  maxWidth: 100,
-                }}
-              >
-                {produto.produto.nome}
-              </Text>
-              <View
-                style={{ flexDirection: "row", marginBottom: 13, marginTop: 5 }}>
+            <View
+              style={{ marginLeft: 13, alignItems: "flex-start", marginTop: 6 }}
+              key={index}
+            >
+              <View style={{ alignItems: "center" }}>
+                <Image
+                  source={{
+                    uri: `http://192.168.0.107:3000${produto.produto.url}`,
+                  }}
+                  style={{
+                    width: 77,
+                    height: 77,
+                    borderRadius: 5,
+                    marginTop: 12,
+                  }}
+                />
                 <Text
-                  style={{ color: "#5A4429", fontSize: 14, fontWeight: "bold" }}
+                  style={{
+                    color: "#5A4429",
+                    fontSize: 14,
+                    fontWeight: "bold",
+                    marginTop: 2,
+                    textAlign: "center",
+                    maxWidth: 100,
+                  }}
                 >
-                  {"Quantidade: "}
-                  {produto.quantidade}{" "}
+                  {produto.produto.nome}
                 </Text>
-              </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginBottom: 13,
+                    marginTop: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#5A4429",
+                      fontSize: 14,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {"Quantidade: "}
+                    {produto.quantidade}{" "}
+                  </Text>
+                </View>
               </View>
             </View>
           ))}
@@ -207,9 +308,11 @@ export default function ConfirmOrder({ route }) {
 
       <View style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}>
         <View style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}>
-          <Text style={styles.nameCardInf}>Forma de pagamento</Text>
+          <Text style={styles.nameCardInf}>
+            Forma de pagamento: {formaPagamento || "Selecione"}
+          </Text>
         </View>
-        <Text style={styles.txtFormPay}>+ Selecione a forma de pagamento</Text>
+        <ConfirmarPagamento pagamentoSelecionado={handlePagamentoSelecao} />
       </View>
 
       <View style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}>
@@ -336,7 +439,7 @@ export default function ConfirmOrder({ route }) {
           borderTopRightRadius: 15,
         }}
       >
-        <Text style={{color:'#b48c5c73'}}>.</Text>
+        <Text style={{ color: "#b48c5c73" }}>.</Text>
         <View
           style={{
             backgroundColor: "#DCCCAC",
@@ -378,7 +481,10 @@ export default function ConfirmOrder({ route }) {
             <View
               style={{ height: "100%", width: "100%", alignItems: "center" }}
             >
-              <TouchableOpacity onPress={fazerPedido} style={styles.btnConfPedido}>
+              <TouchableOpacity
+                onPress={fazerPedido}
+                style={styles.btnConfPedido}
+              >
                 <Text
                   style={{
                     color: "#fff",
@@ -441,7 +547,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   downPartInf: {
-    marginLeft: 22,
+    marginLeft: 12,
     color: "#5A4429",
     fontSize: 14,
     fontWeight: "bold",

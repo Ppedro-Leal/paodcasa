@@ -42,6 +42,22 @@ export default function Historico() {
       .catch((error) => console.error("Erro na busca de pedidos:", error));
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log("Componente pedido montado");
+        await get();
+        if (clienteId !== undefined) {
+          await getPedidos();
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
@@ -61,6 +77,40 @@ export default function Historico() {
       return () => {};
     }, [clienteId])
   );
+
+  if (!decodedToken) {
+    return (
+      <View style={styles.containerMen}>
+        <SafeAreaView>
+          <View style={styles.cabeca}>
+            <Text style={styles.cabecaTexto}>PEDIDOS</Text>
+          </View>
+          <View style={styles.mensagemContainer}>
+            <Text style={styles.mensagem}>
+              Entre ou crie uma conta para ver seus pedidos
+            </Text>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
+  if (decodedToken && pedidos.length === 0) {
+    return (
+      <View style={styles.containerMen}>
+        <SafeAreaView>
+          <View style={styles.cabeca}>
+            <Text style={styles.cabecaTexto}>PEDIDOS</Text>
+          </View>
+          <View style={styles.mensagemContainer}>
+            <Text style={styles.mensagem}>
+              Você ainda não fez nenhum pedido
+            </Text>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
 
   const pedidosAtuais = pedidos.slice(0, 2); // Exibe no máximo dois pedidos
   const historicoPedidos = pedidos.slice(2);
@@ -354,5 +404,23 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontWeight: "700",
     top: height * 0.02,
+  },
+  containerMen: {
+    flex: 1,
+    backgroundColor: "#CCBCB4",
+  },
+  mensagemContainer: {
+    height: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
+  mensagem: {
+    color: "#5A4429",
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    
   },
 });
