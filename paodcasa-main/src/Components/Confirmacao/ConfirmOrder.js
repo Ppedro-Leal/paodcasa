@@ -36,7 +36,7 @@ export default function ConfirmOrder({ route }) {
   const getCarrinho = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.107:3000/api/endereco/${carrinhoProdutos[0].carrinho_id}`
+        `http://192.168.1.8:3000/api/endereco/${carrinhoProdutos[0].carrinho_id}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -52,7 +52,7 @@ export default function ConfirmOrder({ route }) {
   const getCliente = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.107:3000/api/cliente/${carrinhoProdutos[0].carrinho_id}`
+        `http://192.168.1.8:3000/api/cliente/${carrinhoProdutos[0].carrinho_id}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -86,7 +86,7 @@ export default function ConfirmOrder({ route }) {
     }
 
     try {
-      const response = await fetch("http://192.168.0.107:3000/api/pedido", {
+      const response = await fetch("http://192.168.1.8:3000/api/pedido", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +125,7 @@ export default function ConfirmOrder({ route }) {
 
   const handleAddAddress = async (novoEndereco) => {
     try {
-      const response = await fetch("http://192.168.0.107:3000/api/endereco", {
+      const response = await fetch("http://192.168.1.8:3000/api/endereco", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -199,7 +199,8 @@ export default function ConfirmOrder({ route }) {
 
         <Text style={styles.pageName}>Confirmar Pedido</Text>
       </View>
-
+      <View style={{height:'74.9%'}}>
+      <ScrollView>
       <View
         style={{
           backgroundColor: "#DCCCAC",
@@ -220,11 +221,11 @@ export default function ConfirmOrder({ route }) {
         </View>
 
         {endereco && endereco.length > 0 ? (
-          <View style={{ marginLeft: 22, marginTop: 6 }}>
+          <View style={{ marginLeft: 22, marginTop: 6, }}>
             <Text style={[styles.downPartInf]}>
               Rua: {endereco[0].rua}, {endereco[0].cidade}, {endereco[0].estado}{" "}
             </Text>
-            <Text style={[styles.downPartInf, { marginBottom: 13 }]}>
+            <Text style={[styles.downPartInf, { marginBottom:2 }]}>
               CEP: {endereco[0].cep}
             </Text>
           </View>
@@ -261,7 +262,7 @@ export default function ConfirmOrder({ route }) {
               <View style={{ alignItems: "center" }}>
                 <Image
                   source={{
-                    uri: `http://192.168.0.107:3000${produto.produto.url}`,
+                    uri: `http://192.168.1.8:3000${produto.produto.url}`,
                   }}
                   style={{
                     width: 77,
@@ -414,7 +415,7 @@ export default function ConfirmOrder({ route }) {
           </Text>
         </View>
       </View>
-      <View style={{ width: "100%", marginTop: 12 }}>
+      <View style={{ width: "100%", marginTop: 12, paddingBottom:12 }}>
         <Text
           style={{
             marginLeft: 15,
@@ -431,10 +432,12 @@ export default function ConfirmOrder({ route }) {
           </Text>
         </Text>
       </View>
+      </ScrollView>
+      </View>
       <View
         style={{
           backgroundColor: "#b48c5c73",
-          marginTop: 12,
+        
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
         }}
@@ -547,7 +550,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   downPartInf: {
-    marginLeft: 12,
     color: "#5A4429",
     fontSize: 14,
     fontWeight: "bold",
@@ -558,7 +560,7 @@ const styles = StyleSheet.create({
   },
   txtFormPay: {
     color: "#5A4429",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
     marginTop: 8,
     marginLeft: 22,

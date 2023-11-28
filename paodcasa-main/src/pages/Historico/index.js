@@ -6,6 +6,7 @@ import {
   View,
   Text,
   StyleSheet,
+  Image,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -36,7 +37,7 @@ export default function Historico() {
   }
 
   async function getPedidos() {
-    fetch(`http://192.168.0.107:3000/api/pedido/${clienteId}`)
+    fetch(`http://192.168.1.8:3000/api/pedido/${clienteId}`)
       .then((response) => response.json())
       .then((data) => setPedidos(data))
       .catch((error) => console.error("Erro na busca de pedidos:", error));
@@ -122,36 +123,40 @@ export default function Historico() {
           <Text style={styles.cabecaTexto}>PEDIDOS</Text>
         </View>
 
-        <ScrollView style={styles.scroll}>
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
           <View style={styles.tudo}>
             <View>
               <Text style={styles.nomepedidos}> Seus Pedidos </Text>
             </View>
 
-            <View style={{ marginHorizontal: width * 0.05 }}>
+            <View >
               {pedidosAtuais.map((pedido) => (
                 <TouchableOpacity
                   key={pedido.id}
-                  style={styles.caixadepedidos}
+                  style={styles.cardpedidos}
                   onPress={() =>
                     navigation.navigate("DetalhesPedido", { pedido })
                   }
                 >
-                  <View>
+                  <View style={styles.divpai}>
+                  <View style={styles.esquerda}>
                     <View>
                       <Text style={styles.cdgpedido}>
                         Código: {pedido.id.substring(0, 6)}
                       </Text>
                     </View>
 
+                  <View style={{height:"15%"}}>
                     {pedido.itens.map((item) => (
-                      <View key={item.produto_id}>
+                      <View  key={item.produto_id}>
                         <Text style={styles.itens}>
                           Item: {item.quantidade}x {item.produto.nome}
                         </Text>
                       </View>
                     ))}
+                    </View>
 
+                  <View style={{marginTop: height *0.004}}>
                     <View style={styles.setah}>
                       <View>
                         <Icon
@@ -160,16 +165,18 @@ export default function Historico() {
                           color="#000"
                         />
                       </View>
-                      <View>
+                      <View style={[styles.btn, {paddingTop:50}]}>
                         <Text style={styles.btn}>ACOMPANHAR</Text>
                       </View>
+                      </View>
                     </View>
-
-                    <View style={{ flexDirection: "column" }}>
-                      <View>
-                        <Text style={styles.statspedidos}>
-                          Status: {pedido.status}
-                        </Text>
+                    
+                    </View>
+        
+                    <View style={styles.direita}>
+                      <View style={[styles.statspedidos, {paddingTop:8}]}>
+                        <Text style={styles.statspedidos}>Status:</Text>
+                        <Text style={styles.statspedidos}>{pedido.status}</Text>
                       </View>
 
                       <View>
@@ -180,33 +187,40 @@ export default function Historico() {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          
 
-          <View style={styles.tudo}>
+          
             <View>
               <Text style={styles.nomehistorico}> HISTÓRICO </Text>
             </View>
 
-            <View style={{ marginHorizontal: width * 0.05 }}>
+            <View>
               {historicoPedidos.map((historicoPedido) => (
                 <TouchableOpacity
                   key={historicoPedido.id}
-                  style={styles.caixadepedidos}
+                  style={styles.cardhistorico}
                   onPress={() =>
                     navigation.navigate("DetalhesPedido", { historicoPedido })
                   }
                 >
-                  <View>
+                  <View style={styles.divpai}>
+                    <View style={styles.esquerda}>
                     <View>
                       <Text style={styles.cdgpedido}>
                         Cód. Pedido: {historicoPedido.id.substring(0, 6)}
                       </Text>
                     </View>
-                    <View>
+
+
+                    <View style={{height:"15%"}}>
                       <Text style={styles.itens}>
                         Items: {historicoPedido.itens.length} itens
                       </Text>
                     </View>
+
+
+
+                    <View style={{marginTop: height *0.004}}>
                     <View style={styles.setah}>
                       <View>
                         <Icon
@@ -215,12 +229,20 @@ export default function Historico() {
                           color="#000"
                         />
                       </View>
-                      <View>
-                        <Text style={styles.btnhistorico}>ACOMPANHAR</Text>
+                      <View style={[styles.btn, {paddingTop:50}]}>
+                        <Text style={styles.btn}>ACOMPANHAR</Text>
+                      </View>
                       </View>
                     </View>
 
-                    <View>
+
+                    </View>
+
+                  <View style={styles.direita}>
+
+
+                    <View style={[styles.statshistorico, {paddingTop:8}]}>
+                      <Text style={styles.statshistorico}>Status:</Text>
                       <Text style={styles.statshistorico}>FINALIZADO</Text>
                     </View>
 
@@ -229,24 +251,33 @@ export default function Historico() {
                         R$ {historicoPedido.total}
                       </Text>
                     </View>
+                    </View>
                   </View>
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+            </View>
 
-          <TouchableOpacity
+
+                  
+          
+        </ScrollView>
+      </SafeAreaView>
+
+
+      <TouchableOpacity 
             onPress={() => navigation.navigate("Carrinho")}
-            style={styles.buttonContainer}
+            style={styles.buttonContainer} 
           >
             <View style={styles.button}>
-              <View>
-                <Icon name="basket" size={width * 0.1} color="#fff" />
+              <View >
+              <Image
+            source={require("../../../assets/sacola.png")}
+            style={{ width: 35, height: 35 }}
+          />
               </View>
             </View>
           </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
     </View>
   );
 }
@@ -255,7 +286,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#CCBCB4",
-    marginBottom: 1,
   },
 
   cabeca: {
@@ -276,14 +306,17 @@ const styles = StyleSheet.create({
     textShadowRadius: width * 0.02,
   },
 
+
   scroll: {
-    width: "100%",
-  },
+    marginBottom: Platform.OS === 'ios' ? 0 : height * 0.16,
+    },
 
   tudo: {
-    display: "flex",
-    flexDirection: "column",
+    flex: 1,
+    padding: width * 0.03,
+    paddingBottom: height * 0.02,
   },
+ 
 
   nomepedidos: {
     color: "#5A4429",
@@ -299,15 +332,34 @@ const styles = StyleSheet.create({
     marginTop: width * 0.29,
   },
 
-  caixadepedidos: {
-    marginBottom: width * 0.01,
-    width: "100%",
+  cardpedidos: {
+    width: "95%",
+    alignSelf:'center',
     height: 150,
     backgroundColor: "#DCCCAC",
     borderRadius: 20,
     alignItems: "center",
     elevation: 8,
     marginVertical: 10,
+    marginHorizontal: 7
+  },
+
+  divpai:{
+    flexDirection:"row",
+    width:"90%",
+    display:'flex'
+  },
+
+  esquerda:{
+    flexDirection:'column',
+    width:"65%",
+    justifyContent:'space-between'
+  },
+
+  direita:{
+    flexDirection:'column',
+    width:"50%",
+    justifyContent:'space-between'
   },
 
   setah: {
@@ -320,77 +372,79 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    top: height * 0.02,
+    marginVertical: "5%"
   },
   itens: {
     color: "#5A4429",
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    top: height * 0.03,
   },
 
   btn: {
-    top: width * 0.14,
     color: "#5A4429",
     fontSize: 13,
     fontStyle: "normal",
     fontWeight: "700",
+    alignItems:"baseline",
   },
 
   statspedidos: {
-    marginLeft: height * 0.25,
     color: "#5A4429",
     fontSize: 17,
     fontStyle: "normal",
     fontWeight: "700",
-    top: height * -0.1,
   },
   preco: {
-    marginLeft: width * 0.6,
     color: "#5A4429",
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    top: height * -0.06,
   },
 
-  caixadehistoico: {
-    width: 350,
+ 
+
+
+  cardhistorico:{
+    width: "95%",
+    alignSelf:'center',
     height: 150,
     backgroundColor: "#DCCCAC",
     borderRadius: 20,
     alignItems: "center",
     elevation: 8,
-    marginLeft: 15,
+    marginVertical: 10,
+    marginHorizontal: 7
   },
+
 
   buttonContainer: {
     alignItems: "center",
   },
   button: {
-    width: 75,
-    height: 75,
+    width: 60,
+    height: 60,
     borderRadius: 40,
     backgroundColor: "#67452C",
     alignItems: "center",
     justifyContent: "center",
     elevation: 8,
-    marginLeft: 280,
-    top: -10,
+    marginLeft:width * 0.800,
+    top: -200,
+    
   },
 
   statshistorico: {
-    marginLeft: height * 0.25,
+    
     color: "#5A4429",
     fontSize: 17,
     fontStyle: "normal",
     fontWeight: "700",
-    top: height * -0.05,
+    
   },
 
   btnhistorico: {
-    top: width * 0.2,
+    
     color: "#5A4429",
     fontSize: 13,
     fontStyle: "normal",
@@ -398,12 +452,12 @@ const styles = StyleSheet.create({
   },
 
   precohist: {
-    marginLeft: width * 0.6,
+   
     color: "#5A4429",
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    top: height * 0.02,
+   
   },
   containerMen: {
     flex: 1,
