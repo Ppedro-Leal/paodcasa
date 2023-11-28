@@ -1,6 +1,13 @@
 import "core-js/stable/atob";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
 import Cabecalho from "../../Components/Cabecalho";
 import Carousel from "../../Components/Carousel";
 import { ScrollView } from "react-native";
@@ -9,6 +16,8 @@ import { SafeAreaView } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const { width, height } = Dimensions.get("window");
 
 export default function Home() {
   const [produtos, setProdutos] = useState([]);
@@ -83,18 +92,17 @@ export default function Home() {
         console.error("Erro ao buscar dados:", error);
       }
     };
-  
+
     fetchData();
-  }, [clienteId]); 
-  
+  }, [clienteId]);
+
   useEffect(() => {
     getCarrinho();
   }, [carrinhoProdutos]);
 
   const getCarrinho = async () => {
-
-    if(!clienteId){
-      return
+    if (!clienteId) {
+      return;
     }
 
     try {
@@ -135,7 +143,7 @@ export default function Home() {
             flexDirection: "row",
             flexWrap: "wrap",
             justifyContent: "space-between",
-            marginTop: 25,
+            marginTop: height * 0.03,
           }}
         >
           {produtos.map((produto, index) => (
@@ -146,8 +154,8 @@ export default function Home() {
                 }
                 style={{
                   alignItems: "center",
-                  paddingHorizontal: 55,
-                  paddingVertical: 15,
+                  paddingHorizontal: width * 0.13,
+                  paddingVertical: height * 0.018,
                 }}
               >
                 <Image
@@ -157,12 +165,20 @@ export default function Home() {
                   style={styles.imgProdutos}
                 />
                 <Text
-                  style={{ color: "#5A4429", fontSize: 15, fontWeight: "bold" }}
+                  style={{
+                    color: "#5A4429",
+                    fontSize: width * 0.038,
+                    fontWeight: "bold",
+                  }}
                 >
                   {produto.nome}
                 </Text>
                 <Text
-                  style={{ color: "#5A4429", fontSize: 15, fontWeight: "bold" }}
+                  style={{
+                    color: "#5A4429",
+                    fontSize: width * 0.038,
+                    fontWeight: "bold",
+                  }}
                 >
                   {produto.preco}/unid
                 </Text>
@@ -196,30 +212,30 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 28,
+    marginTop: height * 0.035,
     backgroundColor: "#CCBCB4",
   },
   txtEndereco: {
-    marginTop: 15,
-    marginLeft: 41,
-    marginBottom: 11,
+    marginTop: height * 0.02,
+    marginLeft: width * 0.11,
+    marginBottom: height * 0.015,
     color: "#5A4429",
-    fontSize: 18,
+    fontSize: width * 0.043,
     fontStyle: "normal",
-    fontWeight: "700",
+    fontWeight: "bold",
   },
   txtMaisVendidos: {
-    marginTop: 15,
-    fontSize: 32,
+    marginTop: height * 0.02,
+    fontSize: width * 0.07,
     textAlign: "center",
     color: "#5A4429",
     fontStyle: "normal",
-    fontWeight: "700",
+    fontWeight: "bold",
   },
   imgProdutos: {
-    width: 83,
-    height: 83,
-    borderRadius: 5,
+    width: width * 0.2,
+    height: width * 0.2,
+    borderRadius: width * 0.01,
   },
   botaoCarrinho: {
     backgroundColor: "#67452C",
@@ -237,8 +253,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 999,
     position: "absolute",
-    top: 5,
-    right: 5,
+    top: -5,
+    right: 0,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
