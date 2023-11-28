@@ -1,13 +1,15 @@
 import "core-js/stable/atob";
 import { jwtDecode } from "jwt-decode";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { Alert, TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity, Dimensions } from "react-native";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import Counter from "../../Components/Counter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const { width, height } = Dimensions.get("window");
 
 export default function Detail() {
   const { params } = useRoute();
@@ -76,9 +78,8 @@ export default function Detail() {
   }, []);
 
   const AdicionarCarrinho = async () => {
-
-    if(!clienteId){
-      return  Alert.alert('Entre em uma conta para adicionar itens à sacola.')
+    if (!clienteId) {
+      return Alert.alert("Entre em uma conta para adicionar itens à sacola.");
     }
 
     try {
@@ -92,7 +93,7 @@ export default function Detail() {
           body: JSON.stringify({
             produtoId: produto.id,
             quantidade: count,
-            preco: totalPrice.toFixed(2)
+            preco: totalPrice.toFixed(2),
           }),
         }
       );
@@ -128,13 +129,13 @@ export default function Detail() {
         >
           <Image
             source={require("../../../assets/arrow-left.png")}
-            style={{ width: 30, height: 30 }}
+            style={{ width: width * 0.06, height: width * 0.06 }}
           />
         </TouchableOpacity>
       </View>
       <View style={styles.nameSpace}>
         <Text style={styles.nameProduto}> {produto.nome}</Text>
-        <Text style={[styles.nameProdutoPrice, { paddingRight: 18 }]}>
+        <Text style={[styles.nameProdutoPrice, { paddingRight: width * 0.05 }]}>
           {" "}
           R$ {produto.preco}/Unid
         </Text>
@@ -143,32 +144,50 @@ export default function Detail() {
       <View style={styles.descricaoSpace}>
         <Text
           style={{
-            fontSize: 25,
-            fontWeight: "700",
+            fontSize: width * 0.06,
+            fontWeight: "bold",
             color: "#5A4429",
-            paddingTop: 8,
+            paddingTop: height * 0.01,
           }}
         >
           Descrição
         </Text>
-        <Text
-          style={{
-            marginTop: 8,
-            fontWeight: "500",
-            color: "#5A4429",
-            fontSize: 13,
-          }}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ height: "8.5%" }}
         >
-          {produto.descricao}
-        </Text>
+          <Text
+            style={{
+              marginTop: height * 0.01,
+              fontWeight: "bold",
+              color: "#5A4429",
+              fontSize: width * 0.035,
+            }}
+          >
+            {produto.descricao}
+          </Text>
+        </ScrollView>
       </View>
 
-      <View style={{ marginTop: 16, alignItems: "center", marginBottom: 15 }}>
-        <Text style={{ fontSize: 25, fontWeight: "bold", color: "#5A4429" }}>
+      <View
+        style={{
+          marginTop: height * 0.02,
+          alignItems: "center",
+          marginBottom: height * 0.015,
+          paddingHorizontal: width * 0.05,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: width * 0.06,
+            fontWeight: "bold",
+            color: "#5A4429",
+          }}
+        >
           Mais Itens
         </Text>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-          <View style={{ flexDirection: "row", marginTop: 19 }}>
+          <View style={{ flexDirection: "row", marginTop: height * 0.02 }}>
             {produtos.map((produto, index) => (
               <View key={index} style={styles.itemContainer}>
                 <TouchableOpacity
@@ -177,8 +196,8 @@ export default function Detail() {
                   }
                   style={{
                     alignItems: "center",
-                    paddingLeft: 12,
-                    marginBottom: 6,
+                    paddingHorizontal: width * 0.02,
+                    marginBottom: height * 0.009,
                   }}
                 >
                   <Image
@@ -190,7 +209,7 @@ export default function Detail() {
                   <Text
                     style={{
                       color: "#5A4429",
-                      fontSize: 13,
+                      fontSize: width * 0.033,
                       fontWeight: "bold",
                     }}
                   >
@@ -199,7 +218,7 @@ export default function Detail() {
                   <Text
                     style={{
                       color: "#5A4429",
-                      fontSize: 13,
+                      fontSize: width * 0.032,
                       fontWeight: "bold",
                     }}
                   >
@@ -211,20 +230,22 @@ export default function Detail() {
           </View>
         </ScrollView>
       </View>
+
       <View
         style={{
           backgroundColor: "#b48c5c73",
-          borderTopLeftRadius: 28,
-          borderTopRightRadius: 28,
+          borderTopLeftRadius: width * 0.07,
+          borderTopRightRadius: width * 0.065,
+          height: "100%",
         }}
       >
         <Text style={{ color: "#CCBCB4" }}>.</Text>
         <View
           style={{
-            marginTop: -13,
+            marginTop: -height * 0.018,
             backgroundColor: "#DCCCAC",
-            borderTopLeftRadius: 30,
-            borderTopRightRadius: 30,
+            borderTopLeftRadius: width * 0.08,
+            borderTopRightRadius: width * 0.08,
             elevation: 1,
           }}
         >
@@ -260,7 +281,7 @@ export default function Detail() {
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              paddingBottom: 8,
+              paddingBottom: height * 0.009,
               marginTop: 9,
               paddingLeft: 8,
             }}
@@ -286,20 +307,28 @@ export default function Detail() {
               {totalPrice.toFixed(2)}
             </Text>
           </View>
-          <View style={{ height: "100%", width: "100%", alignItems: "center" }}>
+          <View
+            style={{
+              paddingBottom: "100%",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
             <TouchableOpacity
               onPress={async () => {
                 try {
                   await AdicionarCarrinho();
                 } catch (error) {
                   console.error("Erro ao adicionar produto à sacola:", error);
-                  Alert.alert('Entre em uma conta para adicionar itens à sacola.')
+                  Alert.alert(
+                    "Entre em uma conta para adicionar itens à sacola."
+                  );
                 }
               }}
               style={{
                 backgroundColor: "#67452C",
                 width: "90%",
-                height: 46,
+                height: height * 0.063,
                 flexDirection: "row",
                 marginTop: 10,
                 justifyContent: "center",
@@ -334,51 +363,52 @@ const styles = StyleSheet.create({
   },
   imgProduto: {
     width: "100%",
-    height: 300,
+    height: height * 0.4,
   },
   btnBack: {
     position: "absolute",
-    marginTop: 56,
-    marginLeft: 16,
+    marginTop: height * 0.07,
+    marginLeft: width * 0.04,
     backgroundColor: "#CCBCB4",
-    padding: 8,
+    padding: width * 0.02,
     borderRadius: 9999,
     elevation: 3,
   },
   nameSpace: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    paddingTop: 24,
-    marginTop: -38,
+    paddingTop: height * 0.02,
+    marginTop: -height * 0.05,
     backgroundColor: "#CCBCB4",
     borderBottomColor: "#848484",
     borderBottomWidth: 1,
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: width * 0.02,
   },
   nameProduto: {
-    fontSize: 25,
-    paddingLeft: 20,
-    paddingBottom: 15,
-    lineHeight: 36,
-    fontWeight: "600",
+    fontSize: width * 0.055,
+    paddingLeft: width * 0.05,
+    paddingBottom: height * 0.015,
+    lineHeight: height * 0.05,
+    fontWeight: "bold",
     color: "#5A4429",
   },
   nameProdutoPrice: {
-    fontSize: 18,
-    paddingLeft: 20,
-    paddingBottom: 15,
-    lineHeight: 36,
-    fontWeight: "600",
+    fontSize: width * 0.045,
+    paddingLeft: width * 0.05,
+    paddingTop: height * 0.005,
+    lineHeight: height * 0.04,
+    fontWeight: "bold",
     color: "#5A4429",
   },
   descricaoSpace: {
-    marginTop: 8,
-    paddingLeft: 20,
+    marginTop: height * 0.005,
+    paddingHorizontal: width * 0.05,
   },
   imgProdutos: {
-    width: 73,
-    height: 73,
-    borderRadius: 5,
+    width: width * 0.16,
+    height: width * 0.16,
+    borderRadius: width * 0.01,
   },
 });

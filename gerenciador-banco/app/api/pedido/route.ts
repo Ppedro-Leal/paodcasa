@@ -17,7 +17,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Adicionar dataPedido diretamente ao corpo
     body.dataPedido = new Date();
 
     const carrinhoId = body.carrinhoId;
@@ -26,7 +25,6 @@ export async function POST(request: Request) {
     delete body.carrinhoId;
  
 
-    // Extrair produtos do corpo e remover do corpo principal
     const produtos = body.produtos;
     delete body.produtos;
 

@@ -199,7 +199,8 @@ export default function ConfirmOrder({ route }) {
 
         <Text style={styles.pageName}>Confirmar Pedido</Text>
       </View>
-
+      <View style={{height:'74.9%'}}>
+      <ScrollView>
       <View
         style={{
           backgroundColor: "#DCCCAC",
@@ -414,7 +415,7 @@ export default function ConfirmOrder({ route }) {
           </Text>
         </View>
       </View>
-      <View style={{ width: "100%", marginTop: 12 }}>
+      <View style={{ width: "100%", marginTop: 12, paddingBottom:12 }}>
         <Text
           style={{
             marginLeft: 15,
@@ -431,10 +432,12 @@ export default function ConfirmOrder({ route }) {
           </Text>
         </Text>
       </View>
+      </ScrollView>
+      </View>
       <View
         style={{
           backgroundColor: "#b48c5c73",
-          marginTop: 12,
+        
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
         }}
