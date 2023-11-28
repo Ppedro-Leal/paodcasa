@@ -242,7 +242,7 @@ export default function Perfil() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Endereco")}>
               <View style={styles.filha}>
                 <View style={styles.dois}>
                   <Icon
