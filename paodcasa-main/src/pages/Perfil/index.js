@@ -13,7 +13,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
-import  { jwtDecode }  from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export default function Perfil() {
   const navigation = useNavigation();
@@ -29,21 +29,19 @@ export default function Perfil() {
     }
   }
 
-
   async function get() {
     const userToken = await AsyncStorage.getItem("userToken");
-    try{
+    try {
+      if (userToken) {
+        const decoded = jwtDecode(userToken);
 
-    if (userToken) {
-      const decoded = jwtDecode(userToken);
-
-      setDecodedToken(decoded);
-    } else {
-      console.log("Token não encontrado no AsyncStorage");
+        setDecodedToken(decoded);
+      } else {
+        console.log("Token não encontrado no AsyncStorage");
+      }
+    } catch {
+      console.log("erros");
     }
-  } catch {
-    console.log('erros')
-  }
   }
 
   useFocusEffect(
@@ -56,12 +54,10 @@ export default function Perfil() {
           console.error("Erro ao buscar dados:", error);
         }
       };
-  
+
       fetchData();
-      return () => {
-       
-      };
-    }, []) 
+      return () => {};
+    }, [])
   );
 
   return (

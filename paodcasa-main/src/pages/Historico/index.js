@@ -37,7 +37,7 @@ export default function Historico() {
   }
 
   async function getPedidos() {
-    fetch(`http://192.168.1.8:3000/api/pedido/${clienteId}`)
+    fetch(`http://192.168.0.107:3000/api/pedido/${clienteId}`)
       .then((response) => response.json())
       .then((data) => setPedidos(data))
       .catch((error) => console.error("Erro na busca de pedidos:", error));

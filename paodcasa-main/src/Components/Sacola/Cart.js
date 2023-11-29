@@ -1,6 +1,13 @@
 import "core-js/stable/atob";
 import { jwtDecode } from "jwt-decode";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
@@ -82,13 +89,13 @@ export default function Cart() {
         const precoTotal = parseFloat(produto.preco);
         return isNaN(precoTotal) ? acumulador : acumulador + precoTotal;
       }, 0);
-  
+
       return totalCalculado.toFixed(2); // Para formatar o total com duas casas decimais
     }
-  
+
     return "0.00";
   };
-  
+
   const deletaProd = async (index) => {
     try {
       const produtoId = carrinhoProdutos[index].produto.id;
@@ -113,13 +120,12 @@ export default function Cart() {
     }
   };
 
-
   const irParaConfirmação = () => {
     if (!carrinhoProdutos || carrinhoProdutos.length === 0) {
       Alert.alert("Sacola vazia", "Por favor, adicione itens à sacola antes.");
       return;
     }
-  
+
     navigation.navigate("Confirmação", { carrinhoProdutos });
   };
 

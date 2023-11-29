@@ -10,27 +10,25 @@ export default function Categorias() {
   const [ativarCategoria, setAtivarCategoria] = useState(null);
   const [categorias, setCategorias] = useState();
 
-
-  async function getCategorias(){
+  async function getCategorias() {
     await fetch("http://192.168.0.107:3000/api/categoria")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Erro na solicitação GET");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      setCategorias(data);
-    })
-    .catch((error) => {
-      console.error("Erro:", error);
-    })
-};
-
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erro na solicitação GET");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setCategorias(data);
+      })
+      .catch((error) => {
+        console.error("Erro:", error);
+      });
+  }
 
   useEffect(() => {
-    getCategorias()
-  }, [])
+    getCategorias();
+  }, []);
 
   const handleCategoriaPress = (categoria) => {
     setAtivarCategoria(categoria.id);
@@ -82,7 +80,9 @@ export default function Categorias() {
               >
                 <Image
                   style={{ width: 42, height: 42 }}
-                  source={{uri: `http://192.168.0.107:3000${categoria.imagem[0].url}`}}
+                  source={{
+                    uri: `http://192.168.0.107:3000${categoria.imagem[0].url}`,
+                  }}
                   resizeMode="cover"
                   borderRadius={16}
                   backgroundColor={"#E5E7EB"}
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 16,
-    backgroundColor: "#ECDCCC"
+    backgroundColor: "#ECDCCC",
   },
   btn: {
     backgroundColor: "#6B7280",

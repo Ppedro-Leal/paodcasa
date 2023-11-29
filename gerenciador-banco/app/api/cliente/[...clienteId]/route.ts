@@ -1,46 +1,33 @@
-import prisma from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "../../../../lib/prismadb"
 
 // Defina a função handler para a rota
 export async function GET(
   request: NextRequest,
-  { params }: { params: { carrinhoId: string } }
+  { params }: { params: { clienteId: string } }
 ) {
-  const carrinhoId = params.carrinhoId;
-
-  if (!carrinhoId) {
-    return NextResponse.json({ error: "nome não fornecido" });
-  }
+  const clienteId = params.clienteId;
 
   try {
    
-    const carrinho = await prisma.carrinho.findUnique({
-      where: {
-        id: String(carrinhoId)
-      }
-    })
-
-
-    const clienteId = carrinho?.cliente_id;
-
-
     if(!clienteId){
       return new NextResponse('Não encontrado cliente id', {status: 105})
     }
 
 
-    const endereco = await prisma.endereco.findMany({
+    const cliente = await prisma.cliente.findUnique({
       where: {
-        cliente_id: String(clienteId)
-      }
+        id: String(clienteId)
+      } 
+
     })
 
-    if(!endereco){
+    if(!cliente){
       return new NextResponse('Não encontrado cliente id', {status: 105})
     }
     
 
-   return NextResponse.json(endereco);
+   return NextResponse.json(cliente);
   } catch (error) {
     console.error("Erro na busca de produtos:", error);
     return NextResponse.json({ error: "Erro interno na busca de produtos" });

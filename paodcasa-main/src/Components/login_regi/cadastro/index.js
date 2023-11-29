@@ -19,19 +19,22 @@ export default function Cadastro() {
   const [passo, setPasso] = useState(1);
   const navigation = useNavigation();
 
-  const  handleSubmit = async () => {
+  const handleSubmit = async () => {
     if (passo === 1 && email.trim() !== "") {
       setPasso(2);
     } else if (passo === 2 && senha.trim() !== "") {
       try {
-        const response = await fetch('http://192.168.0.107:3000/api/cliente/criar', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, senha }),
-        });
-  
+        const response = await fetch(
+          "http://192.168.0.107:3000/api/cliente/criar",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, senha }),
+          }
+        );
+
         if (response.ok) {
           alert("Cadastro concluído com sucesso, faça login!");
           navigation.navigate("Login");
@@ -40,14 +43,13 @@ export default function Cadastro() {
           alert(`Erro ao cadastrar: ${data.error}`);
         }
       } catch (error) {
-        console.error('Erro ao cadastrar:', error);
-        alert('Erro ao cadastrar. Tente novamente.');
+        console.error("Erro ao cadastrar:", error);
+        alert("Erro ao cadastrar. Tente novamente.");
       }
     } else {
       alert("Por favor, preencha os campos corretamente.");
     }
   };
-
 
   function voltar() {
     if (passo === 2) {

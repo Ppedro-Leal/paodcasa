@@ -5,8 +5,7 @@ import { StyleSheet, TextInput } from "react-native";
 import { View, Image, Text } from "react-native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
   StatusBar;
@@ -18,36 +17,38 @@ export default function Login() {
 
   const Entrar = async () => {
     try {
-      const response = await fetch('http://192.168.0.107:3000/api/cliente/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: emailTelefone,
-          senha: senha,
-        }),
-      });
+      const response = await fetch(
+        "http://192.168.0.107:3000/api/cliente/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: emailTelefone,
+            senha: senha,
+          }),
+        }
+      );
 
       const responseData = await response.json();
 
       if (response.ok && responseData.token) {
-        await AsyncStorage.setItem('userToken', responseData.token);
-  
-        navigation.navigate('BottomTabNavigator', { screen: 'Conta' });
+        await AsyncStorage.setItem("userToken", responseData.token);
+
+        navigation.navigate("BottomTabNavigator", { screen: "Conta" });
       } else {
-        console.log('Credenciais inválidas');
-        alert('Credenciais inválidas. Tente novamente.');
+        console.log("Credenciais inválidas");
+        alert("Credenciais inválidas. Tente novamente.");
       }
     } catch (error) {
-      console.error('Erro durante o login:', error);
-      alert('Erro durante o login. Tente novamente.');
+      console.error("Erro durante o login:", error);
+      alert("Erro durante o login. Tente novamente.");
     }
   };
 
-  
   function voltar() {
-    navigation.navigate("BottomTabNavigator" , { screen: "Conta" });
+    navigation.navigate("BottomTabNavigator", { screen: "Conta" });
   }
 
   return (
@@ -104,7 +105,6 @@ export default function Login() {
         </TouchableOpacity>
       </View>
 
-      
       <View>
         <Text style={styles.txtlogin}>- Faça login também como -</Text>
       </View>
@@ -133,7 +133,7 @@ export default function Login() {
         <View style={styles.regis}>
           <View>
             <Text style={styles.txtregis}>Não tem conta ?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
+            <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}>
               <Text style={styles.registrar}>Registre-se</Text>
             </TouchableOpacity>
           </View>

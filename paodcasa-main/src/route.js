@@ -15,7 +15,7 @@ import Detail from "./pages/Detail/Detail";
 import Cart from "./Components/Sacola/Cart";
 import ConfirmOrder from "./Components/Confirmacao/ConfirmOrder";
 import Enderecos from "./Components/Enderecos/Enderecos";
-import Cartao from "./Components/Cartao/Cartao"
+import Cartao from "./Components/Cartao/Cartao";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -52,7 +52,7 @@ function BottomTabNavigator() {
         },
       }}
     >
-     <Tab.Screen
+      <Tab.Screen
         name="Inicio"
         component={Home}
         options={{
@@ -124,13 +124,15 @@ function AppNavigator() {
         {/* Tela Cadastro como rota independente */}
         <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="ProdutosPorCategoria" component={ProdutosPorCategoria} />
+        <Stack.Screen
+          name="ProdutosPorCategoria"
+          component={ProdutosPorCategoria}
+        />
         <Stack.Screen name="ItemSelecionado" component={Detail} />
         <Stack.Screen name="Carrinho" component={Cart} />
         <Stack.Screen name="Confirmação" component={ConfirmOrder} />
         <Stack.Screen name="Endereco" component={Enderecos} />
         <Stack.Screen name="Carton" component={Cartao} />
-        
       </Stack.Navigator>
     </NavigationContainer>
   );

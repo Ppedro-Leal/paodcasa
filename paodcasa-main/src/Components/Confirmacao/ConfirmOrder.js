@@ -1,3 +1,5 @@
+import "core-js/stable/atob";
+import { jwtDecode } from "jwt-decode";
 import {
   View,
   Text,
@@ -12,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import ConfirmarPagamento from "../modals/pagamentoModal";
 import AdicionarEnderecoModal from "../modals/enderecoModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ConfirmOrder({ route }) {
   const navigation = useNavigation();
@@ -24,6 +27,7 @@ export default function ConfirmOrder({ route }) {
   const [frete, setFrete] = useState("1.00");
   const [formaPagamento, setFormaPagamento] = useState("");
   const [isEnderecoModalVisible, setAddressModalVisible] = useState(false);
+  const [clienteId, setClienteId] = useState();
 
   const toggleEnderecoModal = () => {
     setAddressModalVisible(!isEnderecoModalVisible);
@@ -33,10 +37,22 @@ export default function ConfirmOrder({ route }) {
     setFormaPagamento(metodoPagamento);
   };
 
-  const getCarrinho = async () => {
+  async function get() {
+    const userToken = await AsyncStorage.getItem("userToken");
+
+    if (userToken) {
+      const decoded = jwtDecode(userToken);
+
+      setClienteId(decoded.clienteId);
+    } else {
+      console.log("Token não encontrado no AsyncStorage");
+    }
+  }
+
+  const getEndereco = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.8:3000/api/endereco/${carrinhoProdutos[0].carrinho_id}`
+        `http://192.168.0.107:3000/api/endereco/${clienteId}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -52,7 +68,7 @@ export default function ConfirmOrder({ route }) {
   const getCliente = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.8:3000/api/cliente/${carrinhoProdutos[0].carrinho_id}`
+        `http://192.168.0.107:3000/api/cliente/${clienteId}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -66,10 +82,24 @@ export default function ConfirmOrder({ route }) {
   };
 
   useEffect(() => {
-    getCarrinho();
-    getCliente();
+    const fetchData = async () => {
+      try {
+        console.log("Componente sacola montado");
+        await get();
+        if (clienteId !== undefined) {
+          await getEndereco();
+          await getCliente();
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      }
+    };
+
+    fetchData();
     calcularTotalPedido();
-  }, []);
+
+    return () => {};
+  }, [clienteId]);
 
   const fazerPedido = async () => {
     if (!endereco || endereco.length === 0) {
@@ -86,7 +116,7 @@ export default function ConfirmOrder({ route }) {
     }
 
     try {
-      const response = await fetch("http://192.168.1.8:3000/api/pedido", {
+      const response = await fetch("http://192.168.0.107:3000/api/pedido", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +155,7 @@ export default function ConfirmOrder({ route }) {
 
   const handleAddAddress = async (novoEndereco) => {
     try {
-      const response = await fetch("http://192.168.1.8:3000/api/endereco", {
+      const response = await fetch("http://192.168.0.107:3000/api/endereco", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -176,7 +206,7 @@ export default function ConfirmOrder({ route }) {
       return (
         <TouchableOpacity onPress={() => navigation.navigate("Conta")}>
           <Text style={styles.upPartInf}>
-          Inexistente. Clique aqui para adicionar.
+            Inexistente. Clique aqui para adicionar.
           </Text>
         </TouchableOpacity>
       );
@@ -199,245 +229,267 @@ export default function ConfirmOrder({ route }) {
 
         <Text style={styles.pageName}>Confirmar Pedido</Text>
       </View>
-      <View style={{height:'74.9%'}}>
-      <ScrollView>
-      <View
-        style={{
-          backgroundColor: "#DCCCAC",
-          marginTop: 10,
-          height: 110,
-          elevation: 2,
-        }}
-      >
-        <View style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}>
-          <Text style={styles.nameCardInf}>Informações de entrega</Text>
-        </View>
-        <View style={{ marginTop: 6, marginLeft: 22, flexDirection: "row" }}>
-          <Text style={styles.upPartInf}>{cliente?.nome}</Text>
-          <Text style={[styles.upPartInf, { marginLeft: 10 }]}>
-            Número :
-          </Text> 
-          {renderNumeroTelefone()}
-        </View>
-
-        {endereco && endereco.length > 0 ? (
-          <View style={{ marginLeft: 22, marginTop: 6, }}>
-            <Text style={[styles.downPartInf]}>
-              Rua: {endereco[0].rua}, {endereco[0].cidade}, {endereco[0].estado}{" "}
-            </Text>
-            <Text style={[styles.downPartInf, { marginBottom:2 }]}>
-              CEP: {endereco[0].cep}
-            </Text>
-          </View>
-        ) : (
-          <View style={{ marginLeft: 18, marginTop: 6, width: "90%" }}>
-            <TouchableOpacity onPress={toggleEnderecoModal}>
-              <Text style={styles.downPartInf}>
-                Ainda não possui nenhum endereço em sua conta. Clique aqui para
-                adicionar.
+      <View style={{ height: "74.9%" }}>
+        <ScrollView>
+          <View
+            style={{
+              backgroundColor: "#DCCCAC",
+              marginTop: 10,
+              height: 110,
+              elevation: 2,
+            }}
+          >
+            <View
+              style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}
+            >
+              <Text style={styles.nameCardInf}>Informações de entrega</Text>
+            </View>
+            <View
+              style={{ marginTop: 6, marginLeft: 22, flexDirection: "row" }}
+            >
+              <Text style={styles.upPartInf}>{cliente?.nome}</Text>
+              <Text style={[styles.upPartInf, { marginLeft: 10 }]}>
+                Número :
               </Text>
-            </TouchableOpacity>
-            {isEnderecoModalVisible && (
-              <AdicionarEnderecoModal
-                isVisible={isEnderecoModalVisible}
-                onClose={toggleEnderecoModal}
-                AddAddress={handleAddAddress}
-              />
+              {renderNumeroTelefone()}
+            </View>
+
+            {endereco && endereco.length > 0 ? (
+              <View style={{ marginLeft: 22, marginTop: 6 }}>
+                <Text style={[styles.downPartInf]}>
+                  Rua: {endereco[0].rua}, {endereco[0].cidade},{" "}
+                  {endereco[0].estado}{" "}
+                </Text>
+                <Text style={[styles.downPartInf, { marginBottom: 2 }]}>
+                  CEP: {endereco[0].cep}
+                </Text>
+              </View>
+            ) : (
+              <View style={{ marginLeft: 18, marginTop: 6, width: "90%" }}>
+                <TouchableOpacity onPress={toggleEnderecoModal}>
+                  <Text style={styles.downPartInf}>
+                    Ainda não possui nenhum endereço em sua conta. Clique aqui
+                    para adicionar.
+                  </Text>
+                </TouchableOpacity>
+                {isEnderecoModalVisible && (
+                  <AdicionarEnderecoModal
+                    isVisible={isEnderecoModalVisible}
+                    onClose={toggleEnderecoModal}
+                    AddAddress={handleAddAddress}
+                  />
+                )}
+              </View>
             )}
           </View>
-        )}
-      </View>
 
-      <View style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}>
-        <View style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}>
-          <Text style={styles.nameCardInf}>Itens de entrega</Text>
-        </View>
-
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-          {carrinhoProdutos?.map((produto, index) => (
+          <View
+            style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}
+          >
             <View
-              style={{ marginLeft: 13, alignItems: "flex-start", marginTop: 6 }}
-              key={index}
+              style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}
             >
-              <View style={{ alignItems: "center" }}>
-                <Image
-                  source={{
-                    uri: `http://192.168.1.8:3000${produto.produto.url}`,
-                  }}
-                  style={{
-                    width: 77,
-                    height: 77,
-                    borderRadius: 5,
-                    marginTop: 12,
-                  }}
-                />
-                <Text
-                  style={{
-                    color: "#5A4429",
-                    fontSize: 14,
-                    fontWeight: "bold",
-                    marginTop: 2,
-                    textAlign: "center",
-                    maxWidth: 100,
-                  }}
-                >
-                  {produto.produto.nome}
-                </Text>
+              <Text style={styles.nameCardInf}>Itens de entrega</Text>
+            </View>
+
+            <ScrollView
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            >
+              {carrinhoProdutos?.map((produto, index) => (
                 <View
                   style={{
-                    flexDirection: "row",
-                    marginBottom: 13,
-                    marginTop: 5,
+                    marginLeft: 13,
+                    alignItems: "flex-start",
+                    marginTop: 6,
                   }}
+                  key={index}
                 >
-                  <Text
-                    style={{
-                      color: "#5A4429",
-                      fontSize: 14,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {"Quantidade: "}
-                    {produto.quantidade}{" "}
-                  </Text>
+                  <View style={{ alignItems: "center" }}>
+                    <Image
+                      source={{
+                        uri: `http://192.168.0.107:3000${produto.produto.url}`,
+                      }}
+                      style={{
+                        width: 77,
+                        height: 77,
+                        borderRadius: 5,
+                        marginTop: 12,
+                      }}
+                    />
+                    <Text
+                      style={{
+                        color: "#5A4429",
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        marginTop: 2,
+                        textAlign: "center",
+                        maxWidth: 100,
+                      }}
+                    >
+                      {produto.produto.nome}
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        marginBottom: 13,
+                        marginTop: 5,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "#5A4429",
+                          fontSize: 14,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {"Quantidade: "}
+                        {produto.quantidade}{" "}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-              </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View
+            style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}
+          >
+            <View
+              style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}
+            >
+              <Text style={styles.nameCardInf}>
+                Forma de pagamento: {formaPagamento || "Selecione"}
+              </Text>
             </View>
-          ))}
+            <ConfirmarPagamento pagamentoSelecionado={handlePagamentoSelecao} />
+          </View>
+
+          <View
+            style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}
+          >
+            <View
+              style={{
+                marginTop: 12,
+                paddingBottom: 12,
+                justifyContent: "space-between",
+                flexDirection: "row",
+                borderBottomWidth: 1,
+                borderBottomColor: "#848484",
+              }}
+            >
+              <Text
+                style={{
+                  marginLeft: 22,
+                  color: "#5A4429",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  letterSpacing: 0.45,
+                }}
+              >
+                Frete
+              </Text>
+              <Text
+                style={{
+                  marginRight: 22,
+                  color: "#5A4429",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  letterSpacing: 0.45,
+                }}
+              >
+                {frete}
+              </Text>
+            </View>
+            <View
+              style={{
+                marginTop: 12,
+                paddingBottom: 12,
+                justifyContent: "space-between",
+                flexDirection: "row",
+                borderBottomWidth: 1,
+                borderBottomColor: "#848484",
+              }}
+            >
+              <Text
+                style={{
+                  marginLeft: 22,
+                  color: "#5A4429",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  letterSpacing: 0.45,
+                }}
+              >
+                Subtotal
+              </Text>
+              <Text
+                style={{
+                  marginRight: 22,
+                  color: "#5A4429",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  letterSpacing: 0.45,
+                }}
+              >
+                {subtotal}
+              </Text>
+            </View>
+            <View
+              style={{
+                marginTop: 12,
+                marginBottom: 12,
+                justifyContent: "space-between",
+                flexDirection: "row",
+              }}
+            >
+              <Text
+                style={{
+                  marginLeft: 21,
+                  color: "#5A4429",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  letterSpacing: 0.45,
+                }}
+              >
+                Tempo estimado
+              </Text>
+              <Text
+                style={{
+                  marginRight: 18,
+                  color: "#5A4429",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  letterSpacing: 0.45,
+                }}
+              >
+                7:38
+              </Text>
+            </View>
+          </View>
+          <View style={{ width: "100%", marginTop: 12, paddingBottom: 12 }}>
+            <Text
+              style={{
+                marginLeft: 15,
+                color: "#5A4429",
+                fontSize: 13,
+                fontWeight: "bold",
+                letterSpacing: 0.45,
+              }}
+            >
+              Ao clicar em "Fazer pedido" você está{"\n"}
+              concordando com os nossos{" "}
+              <Text style={{ color: "#C0883E", fontWeight: "bold" }}>
+                termos e condições
+              </Text>
+            </Text>
+          </View>
         </ScrollView>
-      </View>
-
-      <View style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}>
-        <View style={{ borderBottomWidth: 1, borderBottomColor: "#848484" }}>
-          <Text style={styles.nameCardInf}>
-            Forma de pagamento: {formaPagamento || "Selecione"}
-          </Text>
-        </View>
-        <ConfirmarPagamento pagamentoSelecionado={handlePagamentoSelecao} />
-      </View>
-
-      <View style={{ backgroundColor: "#DCCCAC", marginTop: 10, elevation: 2 }}>
-        <View
-          style={{
-            marginTop: 12,
-            paddingBottom: 12,
-            justifyContent: "space-between",
-            flexDirection: "row",
-            borderBottomWidth: 1,
-            borderBottomColor: "#848484",
-          }}
-        >
-          <Text
-            style={{
-              marginLeft: 22,
-              color: "#5A4429",
-              fontSize: 15,
-              fontWeight: "bold",
-              letterSpacing: 0.45,
-            }}
-          >
-            Frete
-          </Text>
-          <Text
-            style={{
-              marginRight: 22,
-              color: "#5A4429",
-              fontSize: 15,
-              fontWeight: "bold",
-              letterSpacing: 0.45,
-            }}
-          >
-            {frete}
-          </Text>
-        </View>
-        <View
-          style={{
-            marginTop: 12,
-            paddingBottom: 12,
-            justifyContent: "space-between",
-            flexDirection: "row",
-            borderBottomWidth: 1,
-            borderBottomColor: "#848484",
-          }}
-        >
-          <Text
-            style={{
-              marginLeft: 22,
-              color: "#5A4429",
-              fontSize: 15,
-              fontWeight: "bold",
-              letterSpacing: 0.45,
-            }}
-          >
-            Subtotal
-          </Text>
-          <Text
-            style={{
-              marginRight: 22,
-              color: "#5A4429",
-              fontSize: 15,
-              fontWeight: "bold",
-              letterSpacing: 0.45,
-            }}
-          >
-            {subtotal}
-          </Text>
-        </View>
-        <View
-          style={{
-            marginTop: 12,
-            marginBottom: 12,
-            justifyContent: "space-between",
-            flexDirection: "row",
-          }}
-        >
-          <Text
-            style={{
-              marginLeft: 21,
-              color: "#5A4429",
-              fontSize: 15,
-              fontWeight: "bold",
-              letterSpacing: 0.45,
-            }}
-          >
-            Tempo estimado
-          </Text>
-          <Text
-            style={{
-              marginRight: 18,
-              color: "#5A4429",
-              fontSize: 15,
-              fontWeight: "bold",
-              letterSpacing: 0.45,
-            }}
-          >
-            7:38
-          </Text>
-        </View>
-      </View>
-      <View style={{ width: "100%", marginTop: 12, paddingBottom:12 }}>
-        <Text
-          style={{
-            marginLeft: 15,
-            color: "#5A4429",
-            fontSize: 13,
-            fontWeight: "bold",
-            letterSpacing: 0.45,
-          }}
-        >
-          Ao clicar em "Fazer pedido" você está{"\n"}
-          concordando com os nossos{" "}
-          <Text style={{ color: "#C0883E", fontWeight: "bold" }}>
-            termos e condições
-          </Text>
-        </Text>
-      </View>
-      </ScrollView>
       </View>
       <View
         style={{
           backgroundColor: "#b48c5c73",
-        
+
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
         }}
