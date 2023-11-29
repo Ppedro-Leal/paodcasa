@@ -174,7 +174,7 @@ export default function Perfil() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Carton")}>
               <View style={styles.filha}>
                 <View style={styles.dois}>
                   <Icon
