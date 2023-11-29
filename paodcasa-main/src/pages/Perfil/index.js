@@ -256,7 +256,7 @@ export default function Perfil() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("MeusDados")}>
               <View style={styles.filha}>
                 <View style={styles.dois}>
                   <Icon

@@ -16,6 +16,10 @@ import Cart from "./Components/Sacola/Cart";
 import ConfirmOrder from "./Components/Confirmacao/ConfirmOrder";
 import Enderecos from "./Components/Enderecos/Enderecos";
 import Cartao from "./Components/Cartao/Cartao";
+import Infos from "./Components/MeusDados/InformacoesPessoais";
+import Credenciais from "./Components/MeusDados/Credenciais";
+import Publicidade from "./Components/MeusDados/Publicidade";
+import MeusDados from "./Components/MeusDados";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -133,6 +137,10 @@ function AppNavigator() {
         <Stack.Screen name="Confirmação" component={ConfirmOrder} />
         <Stack.Screen name="Endereco" component={Enderecos} />
         <Stack.Screen name="Carton" component={Cartao} />
+        <Stack.Screen name="Infos" component={Infos} />
+        <Stack.Screen name="Credenciais" component={Credenciais} />
+        <Stack.Screen name="Publicidade" component={Publicidade} />
+        <Stack.Screen name="MeusDados" component={MeusDados} />
       </Stack.Navigator>
     </NavigationContainer>
   );
