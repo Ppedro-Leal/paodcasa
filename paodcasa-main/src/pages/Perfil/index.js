@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Dimensions
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -14,6 +15,8 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+
+const { width, height } = Dimensions.get("window");
 
 export default function Perfil() {
   const navigation = useNavigation();
@@ -73,7 +76,7 @@ export default function Perfil() {
 
           <TouchableOpacity style={styles.button} onPress={sair}>
             <Text style={styles.buttonText}>
-              <Icon name="exit-outline" size={35} color="#000" />
+              <Icon name="exit-outline" size={width * 0.09} color="#000" />
             </Text>
           </TouchableOpacity>
         </View>
@@ -343,12 +346,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#CCBCB4",
-    marginBottom: 51,
+    marginBottom: 50,
   },
 
   profileImage: {
-    width: 80,
-    height: 80,
+    width: 75,
+    height: 75,
     borderRadius: 75,
     // top: -50
   },
@@ -393,12 +396,7 @@ const styles = StyleSheet.create({
     width: "16%",
     alignItems: "center",
     top: -35,
-    marginLeft: 17,
-  },
-  buttonText: {
-    color: "#5A4429",
-    fontSize: 16,
-    fontWeight: "bold",
+    marginLeft: 85,
   },
 
   scroll: {

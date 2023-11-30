@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Dimensions
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -15,8 +16,12 @@ import { useEffect, useState } from "react";
 import ConfirmarPagamento from "../modals/pagamentoModal";
 import AdicionarEnderecoModal from "../modals/enderecoModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "react-native-vector-icons/Ionicons";
+
+const { width, height } = Dimensions.get("window");
 
 export default function ConfirmOrder({ route }) {
+  
   const navigation = useNavigation();
   const { carrinhoProdutos } = route.params;
 
@@ -52,7 +57,7 @@ export default function ConfirmOrder({ route }) {
   const getEndereco = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.101:3000/api/endereco/${clienteId}`
+        `http://192.168.1.8:3000/api/endereco/${clienteId}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -68,7 +73,7 @@ export default function ConfirmOrder({ route }) {
   const getCliente = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.101:3000/api/cliente/${clienteId}`
+        `http://192.168.1.8:3000/api/cliente/${clienteId}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -98,7 +103,7 @@ export default function ConfirmOrder({ route }) {
     fetchData();
     calcularTotalPedido();
 
-    return () => {};
+    return () => { };
   }, [clienteId]);
 
   const fazerPedido = async () => {
@@ -116,7 +121,7 @@ export default function ConfirmOrder({ route }) {
     }
 
     try {
-      const response = await fetch("http://192.168.0.101:3000/api/pedido", {
+      const response = await fetch("http://192.168.1.8:3000/api/pedido", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -155,7 +160,7 @@ export default function ConfirmOrder({ route }) {
 
   const handleAddAddress = async (novoEndereco) => {
     try {
-      const response = await fetch("http://192.168.0.101:3000/api/endereco", {
+      const response = await fetch("http://192.168.1.8:3000/api/endereco", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,9 +226,11 @@ export default function ConfirmOrder({ route }) {
           style={{}}
           onPress={() => navigation.navigate("Carrinho")}
         >
-          <Image
-            source={require("../../../assets/arrow-left2.png")}
-            style={{ width: 38, height: 26, marginLeft: 15, marginTop: 5 }}
+           <Icon
+            style={{ marginLeft: width * 0.03, }}
+            name="chevron-back"
+            size={width * 0.1}
+            color="#CCBCB4"
           />
         </TouchableOpacity>
 
@@ -234,8 +241,7 @@ export default function ConfirmOrder({ route }) {
           <View
             style={{
               backgroundColor: "#DCCCAC",
-              marginTop: 10,
-              height: 110,
+              marginTop: height * 0.014,
               elevation: 2,
             }}
           >
@@ -248,19 +254,19 @@ export default function ConfirmOrder({ route }) {
               style={{ marginTop: 6, marginLeft: 22, flexDirection: "row" }}
             >
               <Text style={styles.upPartInf}>{cliente?.nome}</Text>
-              <Text style={[styles.upPartInf, { marginLeft: 10 }]}>
+              <Text style={styles.upPartInf}>
                 Número :
               </Text>
               {renderNumeroTelefone()}
             </View>
 
             {endereco && endereco.length > 0 ? (
-              <View style={{ marginLeft: 22, marginTop: 6 }}>
-                <Text style={[styles.downPartInf]}>
+              <View style={{ marginLeft: 22, marginBottom: 5 }}>
+                <Text style={[styles.downPartInf, { marginTop: 6 }]}>
                   Rua: {endereco[0].rua}, {endereco[0].cidade},{" "}
                   {endereco[0].estado}{" "}
                 </Text>
-                <Text style={[styles.downPartInf, { marginBottom: 2 }]}>
+                <Text style={[styles.downPartInf, {marginBottom:2}]}>
                   CEP: {endereco[0].cep}
                 </Text>
               </View>
@@ -301,14 +307,14 @@ export default function ConfirmOrder({ route }) {
                   style={{
                     marginLeft: 13,
                     alignItems: "flex-start",
-                    marginTop: 6,
+                    marginTop: height * 0.01
                   }}
                   key={index}
                 >
                   <View style={{ alignItems: "center" }}>
                     <Image
                       source={{
-                        uri: `http://192.168.0.101:3000${produto.produto.url}`,
+                        uri: `http://192.168.1.8:3000${produto.produto.url}`,
                       }}
                       style={{
                         width: 77,
@@ -566,7 +572,7 @@ const styles = StyleSheet.create({
   },
   pageNameSpace: {
     backgroundColor: "#67452C",
-    height: 52,
+    height: height * 0.07,
     width: "100%",
     borderBottomLeftRadius: 14,
     borderBottomRightRadius: 14,
@@ -575,7 +581,7 @@ const styles = StyleSheet.create({
   },
   pageName: {
     color: "#DCCCAC",
-    fontSize: 25,
+    fontSize: height * 0.03,
     fontWeight: "bold",
     textAlign: "center",
     letterSpacing: 1,
@@ -605,6 +611,7 @@ const styles = StyleSheet.create({
     color: "#5A4429",
     fontSize: 14,
     fontWeight: "bold",
+
   },
   imgProduto: {
     width: 20,

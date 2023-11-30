@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  Dimensions
 } from "react-native";
 import { SafeAreaView } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -14,7 +15,9 @@ import { ScrollView } from "react-native";
 import Counter from "../Counter";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "react-native-vector-icons/Ionicons";
 
+const { width, height } = Dimensions.get("window");
 export default function Cart() {
   const [count, setCount] = useState(1);
   const navigation = useNavigation();
@@ -40,7 +43,7 @@ export default function Cart() {
     console.log(clienteId);
     try {
       const response = await fetch(
-        `http://192.168.0.101:3000/api/carrinho/cliente/${clienteId}`
+        `http://192.168.1.8:3000/api/carrinho/cliente/${clienteId}`
       );
       if (!response.ok) {
         throw new Error("Erro ao recuperar produtos no carrinho");
@@ -101,7 +104,7 @@ export default function Cart() {
       const produtoId = carrinhoProdutos[index].produto.id;
 
       const response = await fetch(
-        `http://192.168.0.101:3000/api/carrinho/${clienteId}/${produtoId}`,
+        `http://192.168.1.8:3000/api/carrinho/${clienteId}/${produtoId}`,
         {
           method: "DELETE",
         }
@@ -137,9 +140,11 @@ export default function Cart() {
             navigation.navigate("BottomTabNavigator", { screen: "ínicio" })
           }
         >
-          <Image
-            source={require("../../../assets/arrow-left2.png")}
-            style={{ width: 38, height: 26, marginLeft: 17, marginTop: 8 }}
+          <Icon
+            style={{ marginLeft: width * 0.03 }}
+            name="chevron-back"
+            size={width * 0.1}
+            color="#CCBCB4"
           />
         </TouchableOpacity>
 
@@ -154,7 +159,7 @@ export default function Cart() {
             <View style={{ flexDirection: "row" }}>
               <Image
                 source={{
-                  uri: `http://192.168.0.101:3000${produto.produto.url} `,
+                  uri: `http://192.168.1.8:3000${produto.produto.url} `,
                 }}
                 style={{
                   width: 80,
@@ -260,25 +265,26 @@ export default function Cart() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 24,
+    marginTop: height * 0.035,
     backgroundColor: "#CCBCB4",
   },
   namePageSpace: {
     width: "100%",
-    height: 62,
+    height: height * 0.07,
     backgroundColor: "#67452C",
     flexDirection: "row",
-    alignContent: "center",
-    borderBottomLeftRadius: 15,
-    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 14,
+    borderBottomRightRadius: 14,
     elevation: 2,
+    alignItems:'center'
   },
   pageName: {
     color: "#DCCCAC",
-    fontSize: 25,
+    fontSize: height * 0.033,
     fontWeight: "bold",
+    textAlign:'center',
     letterSpacing: 1,
-    marginTop: 4,
+    marginTop: 3,
     marginLeft: 60,
     shadowColor: "#DCCCAC",
     shadowOffset: {

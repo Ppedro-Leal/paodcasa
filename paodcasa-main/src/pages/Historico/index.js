@@ -38,14 +38,14 @@ export default function Historico() {
   }
 
   async function getPedidos() {
-    fetch(`http://192.168.0.101:3000/api/pedido/${clienteId}`)
+    fetch(`http://192.168.1.8:3000/api/pedido/${clienteId}`)
       .then((response) => response.json())
       .then((data) => setPedidos(data))
       .catch((error) => console.error("Erro na busca de pedidos:", error));
   }
 
   async function getPedidosHistorico() {
-    fetch(`http://192.168.0.101:3000/api/pedido/historico/${clienteId}`)
+    fetch(`http://192.168.1.8:3000/api/pedido/historico/${clienteId}`)
       .then((response) => response.json())
       .then((data) => setPedidosHistorico(data))
       .catch((error) => console.error("Erro na busca de pedidos:", error));
@@ -260,19 +260,7 @@ export default function Historico() {
         </ScrollView>
       </SafeAreaView>
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Carrinho")}
-        style={styles.buttonContainer}
-      >
-        <View style={styles.button}>
-          <View>
-            <Image
-              source={require("../../../assets/sacola.png")}
-              style={{ width: 35, height: 35 }}
-            />
-          </View>
-        </View>
-      </TouchableOpacity>
+     
     </View>
   );
 }
@@ -405,21 +393,6 @@ const styles = StyleSheet.create({
     elevation: 8,
     marginVertical: 10,
     marginHorizontal: 7,
-  },
-
-  buttonContainer: {
-    alignItems: "center",
-  },
-  button: {
-    width: 60,
-    height: 60,
-    borderRadius: 40,
-    backgroundColor: "#67452C",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 8,
-    marginLeft: width * 0.8,
-    top: -200,
   },
 
   statshistorico: {
