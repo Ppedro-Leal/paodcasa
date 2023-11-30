@@ -20,6 +20,7 @@ const { width, height } = Dimensions.get("window");
 export default function Historico() {
   const navigation = useNavigation();
   const [pedidos, setPedidos] = useState([]);
+  const [pedidosHistorico, setPedidosHistorico] = useState([]);
   const [decodedToken, setDecodedToken] = useState(null);
   const [clienteId, setClienteId] = useState();
 
@@ -37,9 +38,16 @@ export default function Historico() {
   }
 
   async function getPedidos() {
-    fetch(`http://192.168.0.107:3000/api/pedido/${clienteId}`)
+    fetch(`http://192.168.0.101:3000/api/pedido/${clienteId}`)
       .then((response) => response.json())
       .then((data) => setPedidos(data))
+      .catch((error) => console.error("Erro na busca de pedidos:", error));
+  }
+
+  async function getPedidosHistorico() {
+    fetch(`http://192.168.0.101:3000/api/pedido/historico/${clienteId}`)
+      .then((response) => response.json())
+      .then((data) => setPedidosHistorico(data))
       .catch((error) => console.error("Erro na busca de pedidos:", error));
   }
 
@@ -50,6 +58,7 @@ export default function Historico() {
         await get();
         if (clienteId !== undefined) {
           await getPedidos();
+          await getPedidosHistorico();
         }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -67,6 +76,7 @@ export default function Historico() {
           await get();
           if (clienteId !== undefined) {
             await getPedidos();
+            await getPedidosHistorico();
           }
         } catch (error) {
           console.error("Erro ao buscar dados:", error);
@@ -96,7 +106,7 @@ export default function Historico() {
     );
   }
 
-  if (decodedToken && pedidos.length === 0) {
+  if (decodedToken && pedidos.length === 0 && pedidosHistorico.length === 0) {
     return (
       <View style={styles.containerMen}>
         <SafeAreaView>
@@ -113,8 +123,8 @@ export default function Historico() {
     );
   }
 
-  const pedidosAtuais = pedidos.slice(0, 2); // Exibe no máximo dois pedidos
-  const historicoPedidos = pedidos.slice(2);
+  const pedidosAtuais = pedidos.slice(0, 2);
+  const historicoPedidos = pedidosHistorico;
 
   return (
     <View style={styles.container}>
@@ -129,7 +139,7 @@ export default function Historico() {
               <Text style={styles.nomepedidos}> Seus Pedidos </Text>
             </View>
 
-            <View >
+            <View>
               {pedidosAtuais.map((pedido) => (
                 <TouchableOpacity
                   key={pedido.id}
@@ -139,42 +149,41 @@ export default function Historico() {
                   }
                 >
                   <View style={styles.divpai}>
-                  <View style={styles.esquerda}>
-                    <View>
-                      <Text style={styles.cdgpedido}>
-                        Código: {pedido.id.substring(0, 6)}
-                      </Text>
-                    </View>
-
-                  <View style={{height:"15%"}}>
-                    {pedido.itens.map((item) => (
-                      <View  key={item.produto_id}>
-                        <Text style={styles.itens}>
-                          Item: {item.quantidade}x {item.produto.nome}
+                    <View style={styles.esquerda}>
+                      <View>
+                        <Text style={styles.cdgpedido}>
+                          Código: {pedido.id.substring(0, 6)}
                         </Text>
                       </View>
-                    ))}
+
+                      <View style={{ height: "15%" }}>
+                        {pedido.itens.map((item) => (
+                          <View key={item.produto_id}>
+                            <Text style={styles.itens}>
+                              Item: {item.quantidade}x {item.produto.nome}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      <View style={{ marginTop: height * 0.004 }}>
+                        <View style={styles.setah}>
+                          <View>
+                            <Icon
+                              name="chevron-down-sharp"
+                              size={width * 0.04}
+                              color="#000"
+                            />
+                          </View>
+                          <View style={[styles.btn, { paddingTop: 50 }]}>
+                            <Text style={styles.btn}>ACOMPANHAR</Text>
+                          </View>
+                        </View>
+                      </View>
                     </View>
 
-                  <View style={{marginTop: height *0.004}}>
-                    <View style={styles.setah}>
-                      <View>
-                        <Icon
-                          name="chevron-down-sharp"
-                          size={width * 0.04}
-                          color="#000"
-                        />
-                      </View>
-                      <View style={[styles.btn, {paddingTop:50}]}>
-                        <Text style={styles.btn}>ACOMPANHAR</Text>
-                      </View>
-                      </View>
-                    </View>
-                    
-                    </View>
-        
                     <View style={styles.direita}>
-                      <View style={[styles.statspedidos, {paddingTop:8}]}>
+                      <View style={[styles.statspedidos, { paddingTop: 8 }]}>
                         <Text style={styles.statspedidos}>Status:</Text>
                         <Text style={styles.statspedidos}>{pedido.status}</Text>
                       </View>
@@ -187,9 +196,7 @@ export default function Historico() {
                 </TouchableOpacity>
               ))}
             </View>
-          
 
-          
             <View>
               <Text style={styles.nomehistorico}> HISTÓRICO </Text>
             </View>
@@ -205,79 +212,67 @@ export default function Historico() {
                 >
                   <View style={styles.divpai}>
                     <View style={styles.esquerda}>
-                    <View>
-                      <Text style={styles.cdgpedido}>
-                        Cód. Pedido: {historicoPedido.id.substring(0, 6)}
-                      </Text>
-                    </View>
-
-
-                    <View style={{height:"15%"}}>
-                      <Text style={styles.itens}>
-                        Items: {historicoPedido.itens.length} itens
-                      </Text>
-                    </View>
-
-
-
-                    <View style={{marginTop: height *0.004}}>
-                    <View style={styles.setah}>
                       <View>
-                        <Icon
-                          name="chevron-down-sharp"
-                          size={width * 0.04}
-                          color="#000"
-                        />
+                        <Text style={styles.cdgpedido}>
+                          Cód. Pedido: {historicoPedido.id.substring(0, 6)}
+                        </Text>
                       </View>
-                      <View style={[styles.btn, {paddingTop:50}]}>
-                        <Text style={styles.btn}>ACOMPANHAR</Text>
+
+                      <View style={{ height: "15%" }}>
+                        <Text style={styles.itens}>
+                          Items: {historicoPedido.itens.length} itens
+                        </Text>
                       </View>
+
+                      <View style={{ marginTop: height * 0.004 }}>
+                        <View style={styles.setah}>
+                          <View>
+                            <Icon
+                              name="chevron-down-sharp"
+                              size={width * 0.04}
+                              color="#000"
+                            />
+                          </View>
+                          <View style={[styles.btn, { paddingTop: 50 }]}>
+                            <Text style={styles.btn}>ACOMPANHAR</Text>
+                          </View>
+                        </View>
                       </View>
                     </View>
 
+                    <View style={styles.direita}>
+                      <View style={[styles.statshistorico, { paddingTop: 8 }]}>
+                        <Text style={styles.statshistorico}>Status:</Text>
+                        <Text style={styles.statshistorico}>FINALIZADO</Text>
+                      </View>
 
-                    </View>
-
-                  <View style={styles.direita}>
-
-
-                    <View style={[styles.statshistorico, {paddingTop:8}]}>
-                      <Text style={styles.statshistorico}>Status:</Text>
-                      <Text style={styles.statshistorico}>FINALIZADO</Text>
-                    </View>
-
-                    <View>
-                      <Text style={styles.precohist}>
-                        R$ {historicoPedido.total}
-                      </Text>
-                    </View>
+                      <View>
+                        <Text style={styles.precohist}>
+                          R$ {historicoPedido.total}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </TouchableOpacity>
               ))}
             </View>
-            </View>
-
-
-                  
-          
+          </View>
         </ScrollView>
       </SafeAreaView>
 
-
-      <TouchableOpacity 
-            onPress={() => navigation.navigate("Carrinho")}
-            style={styles.buttonContainer} 
-          >
-            <View style={styles.button}>
-              <View >
-              <Image
-            source={require("../../../assets/sacola.png")}
-            style={{ width: 35, height: 35 }}
-          />
-              </View>
-            </View>
-          </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Carrinho")}
+        style={styles.buttonContainer}
+      >
+        <View style={styles.button}>
+          <View>
+            <Image
+              source={require("../../../assets/sacola.png")}
+              style={{ width: 35, height: 35 }}
+            />
+          </View>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -306,17 +301,15 @@ const styles = StyleSheet.create({
     textShadowRadius: width * 0.02,
   },
 
-
   scroll: {
-    marginBottom: Platform.OS === 'ios' ? 0 : height * 0.16,
-    },
+    marginBottom: Platform.OS === "ios" ? 0 : height * 0.16,
+  },
 
   tudo: {
     flex: 1,
     padding: width * 0.03,
     paddingBottom: height * 0.02,
   },
- 
 
   nomepedidos: {
     color: "#5A4429",
@@ -334,32 +327,32 @@ const styles = StyleSheet.create({
 
   cardpedidos: {
     width: "95%",
-    alignSelf:'center',
+    alignSelf: "center",
     height: 150,
     backgroundColor: "#DCCCAC",
     borderRadius: 20,
     alignItems: "center",
     elevation: 8,
     marginVertical: 10,
-    marginHorizontal: 7
+    marginHorizontal: 7,
   },
 
-  divpai:{
-    flexDirection:"row",
-    width:"90%",
-    display:'flex'
+  divpai: {
+    flexDirection: "row",
+    width: "90%",
+    display: "flex",
   },
 
-  esquerda:{
-    flexDirection:'column',
-    width:"65%",
-    justifyContent:'space-between'
+  esquerda: {
+    flexDirection: "column",
+    width: "65%",
+    justifyContent: "space-between",
   },
 
-  direita:{
-    flexDirection:'column',
-    width:"50%",
-    justifyContent:'space-between'
+  direita: {
+    flexDirection: "column",
+    width: "50%",
+    justifyContent: "space-between",
   },
 
   setah: {
@@ -372,7 +365,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-    marginVertical: "5%"
+    marginVertical: "5%",
   },
   itens: {
     color: "#5A4429",
@@ -386,7 +379,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontStyle: "normal",
     fontWeight: "700",
-    alignItems:"baseline",
+    alignItems: "baseline",
   },
 
   statspedidos: {
@@ -402,21 +395,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
- 
-
-
-  cardhistorico:{
+  cardhistorico: {
     width: "95%",
-    alignSelf:'center',
+    alignSelf: "center",
     height: 150,
     backgroundColor: "#DCCCAC",
     borderRadius: 20,
     alignItems: "center",
     elevation: 8,
     marginVertical: 10,
-    marginHorizontal: 7
+    marginHorizontal: 7,
   },
-
 
   buttonContainer: {
     alignItems: "center",
@@ -429,22 +418,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     elevation: 8,
-    marginLeft:width * 0.800,
+    marginLeft: width * 0.8,
     top: -200,
-    
   },
 
   statshistorico: {
-    
     color: "#5A4429",
     fontSize: 17,
     fontStyle: "normal",
     fontWeight: "700",
-    
   },
 
   btnhistorico: {
-    
     color: "#5A4429",
     fontSize: 13,
     fontStyle: "normal",
@@ -452,29 +437,26 @@ const styles = StyleSheet.create({
   },
 
   precohist: {
-   
     color: "#5A4429",
     fontSize: 15,
     fontStyle: "normal",
     fontWeight: "700",
-   
   },
   containerMen: {
     flex: 1,
     backgroundColor: "#CCBCB4",
   },
   mensagemContainer: {
-    height: '100%',
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 'auto',
-    marginBottom: 'auto',
+    marginTop: "auto",
+    marginBottom: "auto",
   },
   mensagem: {
     color: "#5A4429",
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    
   },
 });

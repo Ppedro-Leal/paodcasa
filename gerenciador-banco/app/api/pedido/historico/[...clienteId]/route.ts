@@ -15,9 +15,9 @@ export async function GET(
     const pedidosCliente = await prisma.pedido.findMany({
       where: {
         cliente: {
-          id: String(clienteId)
+          id: String(clienteId),
         },
-        finalizado: false,
+        finalizado: true,
       },
       include: {
         itens: {
@@ -36,6 +36,7 @@ export async function GET(
       total: pedido.total,
       status: pedido.status,
       confirmado: pedido.confirmado,
+      finalizado: pedido.finalizado,
       cliente: pedido.cliente,
       itens: pedido.itens.map((item: any) => ({
         quantidade: item.quantidade,
