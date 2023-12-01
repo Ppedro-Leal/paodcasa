@@ -114,7 +114,7 @@ export default function Login() {
           <View>
             <Image
               style={styles.gmail}
-              source={require("../../../../assets/gmail.png")}
+              source={require("../../../../assets/icon-gmail.png")}
             />
           </View>
         </TouchableOpacity>
@@ -123,7 +123,7 @@ export default function Login() {
           <View>
             <Image
               style={styles.face}
-              source={require("../../../../assets/face.png")}
+              source={require("../../../../assets/icon-face.png")}
             />
           </View>
         </TouchableOpacity>
@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 16,
     paddingLeft: 8,
+    elevation: 8
   },
 
   main1: {
@@ -206,6 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#DCCCAC",
     height: 50,
     width: 150,
+    elevation: 8
   },
 
   login2: {
@@ -216,6 +218,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#DCCCAC",
     height: 50,
     width: 150,
+    elevation: 8
   },
 
   face: {
@@ -240,6 +243,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#A07F5A",
     borderRadius: 10,
     alignItems: "center",
+    elevation: 8
   },
 
   btnentrar: {

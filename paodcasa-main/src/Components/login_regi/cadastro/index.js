@@ -6,10 +6,14 @@ import {
   StyleSheet,
   Image,
   StatusBar,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
+
+const { width, height } = Dimensions.get("window");
 
 export default function Cadastro() {
   let statusbar = StatusBar.currentHeight;
@@ -119,9 +123,8 @@ export default function Cadastro() {
         </TouchableOpacity>
       </View>
 
-      <View>
+      <View style={{top: height * 0.1}}>
         <Text style={styles.txt}>
-          {" "}
           O PãoD'casa poderá enviar quaisquer comunicações neste e-mail, pra
           cancelar a inscrição basta acessar `Configurações`.
         </Text>
@@ -155,7 +158,7 @@ const styles = StyleSheet.create({
   texto: {
     fontSize: 17,
     color: "#fff",
-    marginRight: 145,
+    marginRight: width * 0.40,
     marginBottom: 15,
     textAlign: "center",
   },

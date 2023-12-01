@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -21,6 +21,7 @@ const { width, height } = Dimensions.get("window");
 export default function Perfil() {
   const navigation = useNavigation();
   const [decodedToken, setDecodedToken] = useState(null);
+  const [nomeC, setNomeC] = useState();
 
   async function sair() {
     try {
@@ -38,12 +39,15 @@ export default function Perfil() {
       if (userToken) {
         const decoded = jwtDecode(userToken);
 
+        setNomeC(decoded.clienteNome);
         setDecodedToken(decoded);
       } else {
         console.log("Token não encontrado no AsyncStorage");
+        setNomeC(null); 
       }
     } catch {
       console.log("erros");
+      setNomeC(null);
     }
   }
 
@@ -63,24 +67,41 @@ export default function Perfil() {
     }, [])
   );
 
+
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.heatconta}>
-        <View style={styles.heatconta2}>
-          <View>
-            <Image source={require("./icon.png")} style={styles.profileImage} />
+      {decodedToken ? (
+        <View style={styles.heatconta}>
+          <View style={styles.heatconta2}>
+            <View>
+              <Image
+                source={require("./icon.png")}
+                style={styles.profileImage}
+              />
+            </View>
+            <View>
+              <Text style={styles.userName}>
+                {nomeC ? nomeC : "Carregando"}
+              </Text>
+            </View>
+            <TouchableOpacity style={styles.button} onPress={sair}>
+              <Text style={styles.buttonText}>
+                <Icon name="exit-outline" size={width * 0.09} color="#000" />
+              </Text>
+            </TouchableOpacity>
           </View>
-          <View>
-            <Text style={styles.userName}>clienteNome</Text>
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={sair}>
-            <Text style={styles.buttonText}>
-              <Icon name="exit-outline" size={width * 0.09} color="#000" />
-            </Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      ) : (
+        <View style={styles.mensagemContainer}>
+        <View style={{width: '100%', alignItems: 'center'}}>
+          <Text style={styles.mensagemTexto}>
+            Você ainda não possui uma conta.
+          </Text>
+          <TouchableOpacity style={{backgroundColor: '#5A4429', padding: 7}} onPress={() => navigation.navigate('Login')}><Text style={{color: 'white'}}> Faça login aqui.</Text></TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       <ScrollView style={styles.scroll}>
         <View style={styles.tudo}>
@@ -350,10 +371,9 @@ const styles = StyleSheet.create({
   },
 
   profileImage: {
-    width: 75,
-    height: 75,
-    borderRadius: 75,
-    // top: -50
+    width: 65,
+    height: 65,
+    borderRadius: 35,
   },
   userName: {
     fontSize: 24,
@@ -455,5 +475,18 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     backgroundColor: "rgba(220, 205, 172, 0.33)",
+  },
+  mensagemContainer: {
+    backgroundColor: "#DCCCAC",
+    padding: 15,
+    marginVertical: 6,
+    borderRadius: 5,
+    width: "100%",
+  },
+  mensagemTexto: {
+    color: "#5A4429",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: '4%'
   },
 });
