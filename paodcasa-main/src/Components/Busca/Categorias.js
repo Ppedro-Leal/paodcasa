@@ -11,7 +11,7 @@ export default function Categorias() {
   const [categorias, setCategorias] = useState();
 
   async function getCategorias() {
-    await fetch("http://192.168.0.101:3000/api/categoria")
+    await fetch("http://177.93.108.196:3000/api/categoria")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Erro na solicitação GET");
@@ -81,9 +81,9 @@ export default function Categorias() {
                 <Image
                   style={{ width: 42, height: 42 }}
                   source={{
-                    uri: `http://192.168.0.101:3000${categoria.imagem[0].url}`,
+                    uri: `http://177.93.108.196:3000${categoria.imagem[0].url}`,
                   }}
-                  resizeMode="cover"
+                  resizeMode="contain"
                   borderRadius={16}
                   backgroundColor={"#E5E7EB"}
                 />

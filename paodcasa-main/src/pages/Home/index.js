@@ -44,7 +44,7 @@ export default function Home() {
   }
 
   function getProdutos() {
-    fetch("http://192.168.0.101:3000/api/produto")
+    fetch("http://177.93.108.196:3000/api/produto")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Erro na solicitação GET");
@@ -107,7 +107,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `http://192.168.0.101:3000/api/carrinho/cliente/${clienteId}`
+        `http://177.93.108.196:3000/api/carrinho/cliente/${clienteId}`
       );
 
       if (!response.ok) {
@@ -160,7 +160,7 @@ export default function Home() {
               >
                 <Image
                   source={{
-                    uri: `http://192.168.0.101:3000${produto.imagem[0].url}`,
+                    uri: `http://177.93.108.196:3000${produto.imagem[0].url}`,
                   }}
                   style={styles.imgProdutos}
                 />
