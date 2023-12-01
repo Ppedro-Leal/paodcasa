@@ -25,6 +25,13 @@ export default function Detail() {
     produto.preco ? produto.preco * count : 0
   );
 
+  function filterDesc(desc){
+    if(desc.length < 15){
+      return desc;
+    }
+    return `${desc.substring(0,12)}...`
+  }
+
   const [decodedToken, setDecodedToken] = useState(null);
   const [clienteId, setClienteId] = useState();
 
@@ -188,7 +195,7 @@ export default function Detail() {
         </Text>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
           <View style={{ flexDirection: "row", marginTop: height * 0.02 }}>
-            {produtos.map((produto, index) => (
+            {produtos.slice(6,12).map((produto, index) => (
               <View key={index} style={styles.itemContainer}>
                 <TouchableOpacity
                   onPress={() =>
@@ -213,7 +220,7 @@ export default function Detail() {
                       fontWeight: "bold",
                     }}
                   >
-                    {produto.nome}
+                    {filterDesc(`${produto.nome}`)}
                   </Text>
                   <Text
                     style={{

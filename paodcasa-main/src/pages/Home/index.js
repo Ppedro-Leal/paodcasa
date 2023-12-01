@@ -25,6 +25,13 @@ export default function Home() {
   const [decodedToken, setDecodedToken] = useState(null);
   const [clienteId, setClienteId] = useState();
 
+  function filterDesc(desc){
+    if(desc.length < 15){
+      return desc;
+    }
+    return `${desc.substring(0,12)}...`
+  }
+
   const navigation = useNavigation();
 
   async function get() {
@@ -144,9 +151,10 @@ export default function Home() {
             flexWrap: "wrap",
             justifyContent: "space-between",
             marginTop: height * 0.03,
+            marginBottom: height * 0.075
           }}
         >
-          {produtos.map((produto, index) => (
+          {produtos.slice(0,6).map((produto, index) => (
             <View key={index} style={styles.itemContainer}>
               <TouchableOpacity
                 onPress={() =>
@@ -169,15 +177,17 @@ export default function Home() {
                     color: "#5A4429",
                     fontSize: width * 0.038,
                     fontWeight: "bold",
+                    
                   }}
                 >
-                  {produto.nome}
+                  {filterDesc(`${produto.nome}`)}
                 </Text>
                 <Text
                   style={{
                     color: "#5A4429",
                     fontSize: width * 0.038,
                     fontWeight: "bold",
+                   
                   }}
                 >
                   {produto.preco}/unid
@@ -211,7 +221,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 2,
     marginTop: height * 0.035,
     backgroundColor: "#CCBCB4",
   },
